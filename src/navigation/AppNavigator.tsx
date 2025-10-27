@@ -7,7 +7,10 @@ import { auth } from "../services/firebase/config";
 import { useUserStore } from "../store/userStore";
 
 // Navigators
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import {
+  createNativeStackNavigator,
+  NativeStackNavigationOptions,
+} from "@react-navigation/native-stack";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,24 +24,25 @@ import DurationSelectionScreen from "../screens/onboarding/DurationSelectionScre
 import HomeScreen from "../screens/home/HomeScreen";
 import WorkoutDetailScreen from "../screens/workout/WorkoutDetailScreen";
 import WorkoutPlayerScreen from "../screens/workout/WorkoutPlayerScreen";
-
-const ProfileScreen = () => (
-  <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-    <Text>Profile</Text>
-  </View>
-);
+import CompletionScreen from "../screens/workout/CompletionScreen";
+import ProgressScreen from "../screens/progress/ProgressScreen";
+import ProfileScreen from "../screens/profile/ProfileScreen";
+import EditProfileScreen from "../screens/profile/EditProfileScreen";
+import RemindersScreen from "../screens/profile/RemindersScreen";
 
 // Types
 import {
   AuthStackParamList,
   OnboardingStackParamList,
   HomeStackParamList,
+  ProfileStackParamList,
 } from "./types";
 
 // --- Stack & Tab Navigators ---
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const OnboardingStack = createNativeStackNavigator<OnboardingStackParamList>();
 const HomeStack = createStackNavigator<HomeStackParamList>();
+const ProfileStack = createStackNavigator<ProfileStackParamList>();
 const Tab = createBottomTabNavigator();
 
 // --- Auth Flow ---
@@ -65,7 +69,7 @@ function OnboardingNavigator() {
   );
 }
 
-// --- Home Stack Navigator (dưới Tab) ---
+// --- Home Stack Navigator ---
 function HomeNavigator() {
   return (
     <HomeStack.Navigator screenOptions={{ headerShown: false }}>
@@ -74,9 +78,39 @@ function HomeNavigator() {
       <HomeStack.Screen
         name="WorkoutPlayer"
         component={WorkoutPlayerScreen}
-        options={{ presentation: "modal" }} // Hiển thị dưới dạng modal trượt từ dưới lên
+        options={{ presentation: "modal" }}
+      />
+      <HomeStack.Screen
+        name="Completion"
+        component={CompletionScreen}
+        options={{ presentation: "modal" }}
       />
     </HomeStack.Navigator>
+  );
+}
+
+// --- Profile Stack Navigator ---
+function ProfileNavigator() {
+  return (
+    <ProfileStack.Navigator>
+      <ProfileStack.Screen
+        name="ProfileHome"
+        component={ProfileScreen}
+        options={{ title: "Hồ sơ của tôi" }}
+      />
+
+      <ProfileStack.Screen
+        name="EditProfile"
+        component={EditProfileScreen}
+        options={{ title: "Chỉnh sửa hồ sơ" }}
+      />
+
+      <ProfileStack.Screen
+        name="Reminders"
+        component={RemindersScreen}
+        options={{ title: "Nhắc nhở" }}
+      />
+    </ProfileStack.Navigator>
   );
 }
 
@@ -92,7 +126,7 @@ function MainNavigator() {
     >
       <Tab.Screen
         name="Home"
-        component={HomeNavigator} // <- Stack navigator cho Home tab
+        component={HomeNavigator}
         options={{
           title: "Trang chủ",
           tabBarIcon: ({ focused, color, size }) => {
@@ -104,10 +138,25 @@ function MainNavigator() {
         }}
       />
       <Tab.Screen
+        name="Progress"
+        component={ProgressScreen}
+        options={{
+          title: "Tiến trình",
+          headerShown: false,
+          tabBarIcon: ({ focused, color, size }) => {
+            const iconName: keyof typeof Ionicons.glyphMap = focused
+              ? "stats-chart"
+              : "stats-chart-outline";
+            return <Ionicons name={iconName} size={size} color={color} />;
+          },
+        }}
+      />
+      <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
+        component={ProfileNavigator} // dùng stack riêng
         options={{
           title: "Hồ sơ",
+          headerShown: false,
           tabBarIcon: ({ focused, color, size }) => {
             const iconName: keyof typeof Ionicons.glyphMap = focused
               ? "person"
@@ -120,7 +169,7 @@ function MainNavigator() {
   );
 }
 
-// --- App Router: kiểm tra onboarding qua store ---
+// --- App Router ---
 const AppRouter = () => {
   const { profile, isLoading } = useUserStore();
 
@@ -139,7 +188,7 @@ const AppRouter = () => {
   );
 };
 
-// --- AppNavigator gốc ---
+// --- App Navigator gốc ---
 const AppNavigator = () => {
   const [loadingAuth, setLoadingAuth] = useState(true);
   const { fetchProfile, clearProfile } = useUserStore();

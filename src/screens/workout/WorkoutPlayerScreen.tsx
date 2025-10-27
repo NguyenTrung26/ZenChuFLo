@@ -1,3 +1,4 @@
+// src/screens/workout/WorkoutPlayerScreen.tsx
 import React, { useRef, useState, useEffect } from "react";
 import {
   View,
@@ -14,6 +15,11 @@ import { Ionicons } from "@expo/vector-icons";
 import Slider from "@react-native-community/slider";
 import { COLORS } from "../../constants/colors";
 import { FONT_SIZES, FONT_WEIGHTS } from "../../constants/typography";
+import { auth } from "../../services/firebase/config";
+import {
+  createSession,
+  updateUserStats,
+} from "../../services/firebase/firestore";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "WorkoutPlayer">;
 
@@ -22,8 +28,9 @@ const WorkoutPlayerScreen: React.FC<Props> = ({ route, navigation }) => {
   const video = useRef<Video>(null);
   const [status, setStatus] = useState<AVPlaybackStatus | {}>({});
   const [isLoading, setIsLoading] = useState(true);
+  const hasFinished = useRef(false); // đảm bảo chỉ chạy 1 lần
 
-  // Cấu hình audio mode để có thể phát trong nền
+  // ⚙️ Cấu hình audio để có thể phát trong nền
   useEffect(() => {
     Audio.setAudioModeAsync({
       allowsRecordingIOS: false,
@@ -34,6 +41,19 @@ const WorkoutPlayerScreen: React.FC<Props> = ({ route, navigation }) => {
     });
   }, []);
 
+  // 🧘 Xử lý khi video hoàn thành
+  const handleCompletion = async () => {
+    const user = auth.currentUser;
+    if (user) {
+      await Promise.all([
+        createSession(user.uid, workout),
+        updateUserStats(user.uid, workout.durationMinutes),
+      ]);
+    }
+    navigation.replace("Completion", { workout });
+  };
+
+  // ⏱️ Định dạng thời gian hiển thị
   const formatTime = (millis: number) => {
     if (!millis) return "0:00";
     const totalSeconds = millis / 1000;
@@ -52,17 +72,21 @@ const WorkoutPlayerScreen: React.FC<Props> = ({ route, navigation }) => {
         source={{
           uri: workout.videoUrl || "",
         }}
-        useNativeControls={false} // Chúng ta sẽ tự tạo điều khiển
+        useNativeControls={false}
         resizeMode={ResizeMode.CONTAIN}
-        isLooping
+        isLooping={false} // ⚠️ đổi false để video có thể kết thúc
         onPlaybackStatusUpdate={(statusUpdate) => {
           setStatus(statusUpdate);
-          if (
-            "isLoaded" in statusUpdate &&
-            statusUpdate.isLoaded &&
-            isLoading
-          ) {
-            setIsLoading(false);
+
+          // Khi video load xong
+          if ("isLoaded" in statusUpdate && statusUpdate.isLoaded) {
+            if (isLoading) setIsLoading(false);
+
+            // 🚀 Kiểm tra video kết thúc
+            if (statusUpdate.didJustFinish && !hasFinished.current) {
+              hasFinished.current = true;
+              handleCompletion();
+            }
           }
         }}
         onLoadStart={() => setIsLoading(true)}
@@ -77,7 +101,7 @@ const WorkoutPlayerScreen: React.FC<Props> = ({ route, navigation }) => {
         />
       )}
 
-      {/* Lớp phủ mờ để các nút điều khiển nổi bật hơn */}
+      {/* 🌫️ Lớp phủ mờ cho UI điều khiển */}
       <View style={styles.overlay}>
         <TouchableOpacity
           style={styles.closeButton}
@@ -142,6 +166,7 @@ const WorkoutPlayerScreen: React.FC<Props> = ({ route, navigation }) => {
   );
 };
 
+// 💅 STYLE
 const styles = StyleSheet.create({
   container: {
     flex: 1,

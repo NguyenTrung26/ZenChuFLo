@@ -17,10 +17,13 @@ export const FONT_SIZES = {
   body: 16,
   caption: 14,
   small: 12,
+  xl: 22,
+  lg: 18,
+  md: 16,
 };
 
 export const FONT_WEIGHTS = {
-  regular: '400' as const,
-  semiBold: '600' as const,
-  bold: '700' as const,
+  regular: "400" as const,
+  semiBold: "600" as const,
+  bold: "700" as const,
 };
