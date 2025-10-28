@@ -1,5 +1,5 @@
 // Import Workout type
-import { Workout } from "../types/data";
+import { Workout } from "../types";
 export type AuthStackParamList = {
   Login: undefined;
   Signup: undefined;

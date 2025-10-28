@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Workout } from "../../../types/data";
+import { Workout } from "../../../types";
 import { COLORS } from "../../../constants/colors";
 import { FONT_SIZES, FONT_WEIGHTS } from "../../../constants/typography";
 

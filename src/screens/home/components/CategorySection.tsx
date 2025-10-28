@@ -7,7 +7,7 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
-import { Category } from "../../../types/data";
+import { Category } from "../../../types";
 import { COLORS } from "../../../constants/colors";
 import { FONT_SIZES, FONT_WEIGHTS } from "../../../constants/typography";
 

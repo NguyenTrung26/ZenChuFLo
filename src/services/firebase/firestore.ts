@@ -15,7 +15,25 @@ import {
 } from "firebase/firestore";
 import { db } from "./config";
 import { Goal, Level } from "../../store/onboardingStore";
+import { MoodValue } from "../../types";
+export type Mood = "awesome" | "good" | "neutral" | "bad" | "terrible";
 
+// --- HÀM MỚI ---
+export const createUserMood = async (uid: string, mood: MoodValue) => {
+  if (!uid) return { success: false, error: "No user ID provided" };
+  try {
+    const moodsCollectionRef = collection(db, "moods");
+    await addDoc(moodsCollectionRef, {
+      userId: uid,
+      mood: mood,
+      createdAt: Timestamp.now(),
+    });
+    return { success: true, error: null };
+  } catch (error: any) {
+    console.error("Error creating user mood:", error);
+    return { success: false, error: error.message };
+  }
+};
 // --- HÀM MỚI ---
 export const updateUserProfile = async (
   uid: string,

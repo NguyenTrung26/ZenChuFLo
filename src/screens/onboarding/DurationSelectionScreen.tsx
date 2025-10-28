@@ -98,6 +98,7 @@ const DurationSelectionScreen: React.FC<Props> = ({ navigation }) => {
         loading={loading}
         style={styles.button}
         gradient
+        haptic="success"
       />
     </SafeAreaView>
   );

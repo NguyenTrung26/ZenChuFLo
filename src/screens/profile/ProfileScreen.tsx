@@ -9,6 +9,8 @@ import {
   Image,
   Alert,
 } from "react-native";
+import * as Haptics from "expo-haptics";
+
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useUserStore } from "../../store/userStore";
@@ -53,6 +55,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   const user = profile as ExtendedUserProfile;
 
   const handleSignOut = async () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     Alert.alert("Đăng xuất", "Bạn có chắc chắn muốn đăng xuất?", [
       { text: "Hủy", style: "cancel" },
       {

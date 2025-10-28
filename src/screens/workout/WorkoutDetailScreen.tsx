@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { HomeStackParamList } from "../../navigation/types";
 import { Ionicons } from "@expo/vector-icons";
+import { Workout } from "../../types";
 import { LinearGradient } from "expo-linear-gradient";
 import { COLORS } from "../../constants/colors";
 import { FONT_SIZES, FONT_WEIGHTS } from "../../constants/typography";
@@ -86,6 +87,7 @@ const WorkoutDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           title="Bắt đầu tập ngay"
           onPress={() => navigation.navigate("WorkoutPlayer", { workout })}
           gradient
+          haptic="medium"
         />
       </View>
     </SafeAreaView>

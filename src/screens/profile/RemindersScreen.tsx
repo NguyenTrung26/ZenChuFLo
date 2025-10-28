@@ -189,7 +189,12 @@ const RemindersScreen: React.FC<Props> = ({ navigation }) => {
       )}
 
       <View style={styles.buttonContainer}>
-        <Button title="Lưu cài đặt" onPress={handleSaveChanges} gradient />
+        <Button
+          title="Lưu cài đặt"
+          onPress={handleSaveChanges}
+          gradient
+          haptic="success"
+        />
       </View>
     </SafeAreaView>
   );

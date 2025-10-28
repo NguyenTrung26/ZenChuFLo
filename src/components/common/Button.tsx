@@ -10,9 +10,14 @@ import {
   TextStyle,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import * as Haptics from "expo-haptics";
 import { COLORS } from "../../constants/colors";
 import { FONT_SIZES, FONT_WEIGHTS } from "../../constants/typography";
 
+// --- THÊM CÁC TYPE CHO HAPTIC ---
+type HapticImpact = "light" | "medium" | "heavy";
+type HapticNotification = "success" | "warning" | "error";
+type HapticType = HapticImpact | HapticNotification;
 interface ButtonProps {
   title: string;
   onPress: () => void;
@@ -23,11 +28,13 @@ interface ButtonProps {
   gradient?: boolean;
   style?: ViewStyle;
   textStyle?: TextStyle;
+  haptic?: HapticType;
 }
 
 const Button: React.FC<ButtonProps> = ({
   title,
   onPress,
+  haptic,
   variant = "primary",
   size = "medium",
   loading = false,
@@ -36,6 +43,29 @@ const Button: React.FC<ButtonProps> = ({
   style,
   textStyle,
 }) => {
+  // --- TẠO MỘT HÀM XỬ LÝ ONPRESS MỚI ---
+  const handlePress = () => {
+    // Kích hoạt haptic nếu có
+    if (haptic) {
+      if (["light", "medium", "heavy"].includes(haptic)) {
+        Haptics.impactAsync(
+          Haptics.ImpactFeedbackStyle[
+            (haptic.charAt(0).toUpperCase() +
+              haptic.slice(1)) as keyof typeof Haptics.ImpactFeedbackStyle
+          ]
+        );
+      } else {
+        Haptics.notificationAsync(
+          Haptics.NotificationFeedbackType[
+            (haptic.charAt(0).toUpperCase() +
+              haptic.slice(1)) as keyof typeof Haptics.NotificationFeedbackType
+          ]
+        );
+      }
+    }
+    // Gọi hàm onPress gốc
+    onPress();
+  };
   const isPrimary = variant === "primary";
 
   // đảm bảo không undefined
@@ -65,7 +95,7 @@ const Button: React.FC<ButtonProps> = ({
   if (gradient && isPrimary && !disabled) {
     return (
       <TouchableOpacity
-        onPress={onPress}
+        onPress={handlePress}
         disabled={disabled || loading}
         activeOpacity={0.8}
       >
@@ -83,7 +113,7 @@ const Button: React.FC<ButtonProps> = ({
 
   return (
     <TouchableOpacity
-      onPress={onPress}
+      onPress={handlePress}
       style={buttonStyles}
       disabled={disabled || loading}
       activeOpacity={0.8}

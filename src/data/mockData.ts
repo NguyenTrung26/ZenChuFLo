@@ -1,4 +1,4 @@
-import { Workout, Category } from "../types/data";
+import { Workout, Category } from "../types";
 
 export const workouts: Workout[] = [
   {
