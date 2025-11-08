@@ -10,15 +10,25 @@ import {
   Alert,
 } from "react-native";
 import * as Haptics from "expo-haptics";
-
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+
 import { useUserStore } from "../../store/userStore";
 import { signOut } from "../../services/firebase/auth";
-import { COLORS } from "../../constants/colors";
 import { FONT_SIZES, FONT_WEIGHTS } from "../../constants/typography";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { ProfileStackParamList } from "../../navigation/types";
+
+// --- Bảng màu mới cho Dark Mode ---
+const DARK_COLORS = {
+  background: "#101727", // Xanh đen đậm
+  card: "#1C2536", // Nền card
+  accent: "#3498db", // Xanh dương làm điểm nhấn
+  danger: "#e74c3c", // Màu đỏ cho hành động nguy hiểm
+  textPrimary: "#FFFFFF", // Chữ trắng
+  textSecondary: "#AAB4C3", // Chữ xám nhạt
+  border: "#344054", // Màu viền
+};
 
 interface ExtendedUserProfile {
   displayName?: string;
@@ -26,24 +36,30 @@ interface ExtendedUserProfile {
   avatar?: string;
 }
 
+// --- MenuItem Component (cập nhật màu sắc) ---
 const MenuItem = ({
   icon,
   label,
   onPress,
+  isLast = false, // Thêm prop để xác định item cuối cùng
 }: {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
   onPress: () => void;
+  isLast?: boolean;
 }) => (
-  <TouchableOpacity style={styles.menuItem} onPress={onPress}>
+  <TouchableOpacity
+    style={[styles.menuItem, isLast && styles.lastMenuItem]}
+    onPress={onPress}
+  >
     <View style={styles.menuLeft}>
-      <Ionicons name={icon} size={22} color={COLORS.deepPurple} />
+      <Ionicons name={icon} size={22} color={DARK_COLORS.accent} />
       <Text style={styles.menuLabel}>{label}</Text>
     </View>
     <Ionicons
       name="chevron-forward-outline"
-      size={18}
-      color={COLORS.warmGray}
+      size={20}
+      color={DARK_COLORS.textSecondary}
     />
   </TouchableOpacity>
 );
@@ -72,16 +88,48 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     ]);
   };
 
+  const menuItems = [
+    {
+      icon: "person-outline" as const,
+      label: "Chỉnh sửa hồ sơ",
+      action: () => navigation.navigate("EditProfile"),
+    },
+    {
+      icon: "notifications-outline" as const,
+      label: "Nhắc nhở",
+      action: () => navigation.navigate("Reminders"),
+    },
+    {
+      icon: "heart-outline" as const,
+      label: "Yêu thích",
+      action: () => navigation.navigate("Favorites"),
+    },
+    {
+      icon: "document-text-outline" as const,
+      label: "Điều khoản & Chính sách",
+      action: () => navigation.navigate("TermsAndPolicy"),
+    },
+    {
+      icon: "help-circle-outline" as const,
+      label: "Trợ giúp & Hỗ trợ",
+      action: () => navigation.navigate("HelpAndSupport"),
+    },
+  ];
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top"]}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
         <View style={styles.header}>
+          <Text style={styles.headerTitle}>Tài khoản</Text>
+        </View>
+
+        {/* User Info Section */}
+        <View style={styles.userInfoSection}>
           <Image
             source={
               user?.avatar
                 ? { uri: user.avatar }
-                : require("../../../assets/images/notification-icon.png")
+                : require("../../../assets/images/notification-icon.png") // Nên có ảnh mặc định
             }
             style={styles.avatar}
           />
@@ -91,35 +139,23 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
         {/* Menu */}
         <View style={styles.menuContainer}>
-          <MenuItem
-            icon="person-outline"
-            label="Chỉnh sửa hồ sơ"
-            onPress={() => navigation.navigate("EditProfile")}
-          />
-          <MenuItem
-            icon="notifications-outline"
-            label="Nhắc nhở"
-            onPress={() => navigation.navigate("Reminders")}
-          />
-          <MenuItem icon="heart-outline" label="Yêu thích" onPress={() => {}} />
-          <MenuItem
-            icon="document-text-outline"
-            label="Điều khoản & Chính sách"
-            onPress={() => {}}
-          />
-          <MenuItem
-            icon="help-circle-outline"
-            label="Trợ giúp & Hỗ trợ"
-            onPress={() => {}}
-          />
+          {menuItems.map((item, index) => (
+            <MenuItem
+              key={item.label}
+              icon={item.icon}
+              label={item.label}
+              onPress={item.action}
+              isLast={index === menuItems.length - 1}
+            />
+          ))}
         </View>
 
         {/* Logout */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
           <Ionicons
             name="log-out-outline"
-            size={20}
-            color={COLORS.sunsetOrange}
+            size={22}
+            color={DARK_COLORS.danger}
           />
           <Text style={styles.logoutText}>Đăng xuất</Text>
         </TouchableOpacity>
@@ -130,81 +166,91 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
 export default ProfileScreen;
 
+// --- STYLESHEET CẢI TIẾN CHO DARK MODE ---
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.creamWhite,
+    backgroundColor: DARK_COLORS.background,
   },
   header: {
+    paddingTop: 20,
+    paddingBottom: 10,
     alignItems: "center",
-    marginTop: 40,
-    marginBottom: 20,
+  },
+  headerTitle: {
+    fontSize: FONT_SIZES.large,
+    fontWeight: FONT_WEIGHTS.bold,
+    color: DARK_COLORS.textPrimary,
+  },
+  userInfoSection: {
+    alignItems: "center",
+    paddingVertical: 20,
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 2,
-    borderColor: COLORS.deepPurple,
-    marginBottom: 10,
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    borderWidth: 3,
+    borderColor: DARK_COLORS.accent,
+    marginBottom: 16,
   },
   name: {
     fontSize: FONT_SIZES.h2,
     fontWeight: FONT_WEIGHTS.bold,
-    color: COLORS.deepPurple,
+    color: DARK_COLORS.textPrimary,
   },
   email: {
-    fontSize: FONT_SIZES.caption,
-    color: COLORS.warmGray,
-    marginTop: 4,
+    fontSize: FONT_SIZES.body,
+    color: DARK_COLORS.textSecondary,
+    marginTop: 6,
   },
   menuContainer: {
-    backgroundColor: "#fff",
+    backgroundColor: DARK_COLORS.card,
     marginHorizontal: 20,
     borderRadius: 16,
-    paddingVertical: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: DARK_COLORS.border,
+    marginTop: 20,
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 14,
+    paddingVertical: 16,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#f1f1f1",
+    borderBottomColor: DARK_COLORS.border,
+  },
+  lastMenuItem: {
+    borderBottomWidth: 0, // Xóa border cho item cuối cùng
   },
   menuLeft: {
     flexDirection: "row",
     alignItems: "center",
   },
   menuLabel: {
-    marginLeft: 12,
+    marginLeft: 16,
     fontSize: FONT_SIZES.body,
-    color: COLORS.charcoal,
-    fontWeight: FONT_WEIGHTS.semiBold,
+    color: DARK_COLORS.textPrimary,
+    fontWeight: FONT_WEIGHTS.medium,
   },
   logoutButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     marginTop: 30,
-    backgroundColor: "#fff",
-    paddingVertical: 12,
     marginHorizontal: 20,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
+    backgroundColor: DARK_COLORS.card,
+    paddingVertical: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: DARK_COLORS.border,
+    marginBottom: 40,
   },
   logoutText: {
-    color: COLORS.sunsetOrange,
+    color: DARK_COLORS.danger,
     fontSize: FONT_SIZES.body,
-    fontWeight: FONT_WEIGHTS.semiBold,
-    marginLeft: 8,
+    fontWeight: FONT_WEIGHTS.bold,
+    marginLeft: 10,
   },
 });

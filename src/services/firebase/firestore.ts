@@ -11,12 +11,59 @@ import {
   query, // Thêm
   where, // Thêm
   getDocs, // Thêm
-  orderBy, // Thêm
+  orderBy,
+  deleteDoc, // Thêm
 } from "firebase/firestore";
 import { db } from "./config";
 import { Goal, Level } from "../../store/onboardingStore";
 import { MoodValue } from "../../types";
 export type Mood = "awesome" | "good" | "neutral" | "bad" | "terrible";
+import { Workout } from "../../types";
+// Hàm lấy chi tiết các bài tập dựa trên một mảng các ID
+// src/services/firebase/firestore.ts
+
+export const getWorkoutsByIds = async (ids: string[]): Promise<Workout[]> => {
+  if (ids.length === 0) {
+    return [];
+  }
+  try {
+    const workoutsCollectionRef = collection(db, "workouts");
+    const q = query(
+      workoutsCollectionRef,
+      where(
+        "__name__",
+        "in",
+        ids // <-- SỬA LẠI: Dùng trực tiếp mảng ids
+      )
+    );
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Workout[];
+  } catch (error) {
+    console.error("Error getting workouts by IDs:", error);
+    return [];
+  }
+};
+
+// --- HÀM MỚI: THÊM BÀI TẬP VÀO COLLECTION 'workouts' NẾU CHƯA TỒN TẠI ---
+export const addWorkoutIfNotExists = async (workout: Workout) => {
+  try {
+    // Chúng ta sử dụng ID từ workout (ví dụ: 'api-45') làm ID cho document
+    const workoutDocRef = doc(db, "workouts", workout.id);
+    const docSnap = await getDoc(workoutDocRef);
+
+    // Nếu document chưa tồn tại, hãy tạo nó
+    if (!docSnap.exists()) {
+      await setDoc(workoutDocRef, workout);
+      console.log(`Workout ${workout.id} added to Firestore.`);
+    }
+  } catch (error) {
+    console.error("Error ensuring workout exists in Firestore:", error);
+  }
+};
 
 // --- HÀM MỚI ---
 export const createUserMood = async (uid: string, mood: MoodValue) => {
@@ -159,4 +206,49 @@ export const updateUserOnboarding = async (
     console.error("Error updating onboarding data:", error);
     return { success: false, error: error.message };
   }
+};
+
+// --- CÁC HÀM MỚI CHO TÍNH NĂNG YÊU THÍCH ---
+
+// Kiểm tra xem một bài tập có được yêu thích hay không
+export const isWorkoutFavorited = async (
+  uid: string,
+  workoutId: string
+): Promise<boolean> => {
+  const q = query(
+    collection(db, "favorites"),
+    where("userId", "==", uid),
+    where("workoutId", "==", workoutId)
+  );
+  const querySnapshot = await getDocs(q);
+  return !querySnapshot.empty;
+};
+
+// Thêm một bài tập vào danh sách yêu thích
+export const addFavorite = async (uid: string, workoutId: string) => {
+  await addDoc(collection(db, "favorites"), {
+    userId: uid,
+    workoutId: workoutId,
+    addedAt: Timestamp.now(),
+  });
+};
+
+// Xóa một bài tập khỏi danh sách yêu thích
+export const removeFavorite = async (uid: string, workoutId: string) => {
+  const q = query(
+    collection(db, "favorites"),
+    where("userId", "==", uid),
+    where("workoutId", "==", workoutId)
+  );
+  const querySnapshot = await getDocs(q);
+  querySnapshot.forEach(async (document) => {
+    await deleteDoc(doc(db, "favorites", document.id));
+  });
+};
+
+// Lấy danh sách ID các bài tập yêu thích
+export const getFavoriteWorkoutIds = async (uid: string): Promise<string[]> => {
+  const q = query(collection(db, "favorites"), where("userId", "==", uid));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map((doc) => doc.data().workoutId);
 };

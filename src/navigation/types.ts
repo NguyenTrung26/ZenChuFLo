@@ -28,4 +28,7 @@ export type ProfileStackParamList = {
   ProfileHome: undefined;
   EditProfile: undefined;
   Reminders: undefined;
+  TermsAndPolicy: undefined;
+  HelpAndSupport: undefined;
+  Favorites: undefined;
 };

@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+
+  <title>O'Reilly Media - Fire Outage</title>
+  <meta name="description" content=" " />
+  <meta name="date" content="2019-10-26" />
+  <meta name="search_date" content="2019-10-26" />
+  <meta name="search-title" content="O'Reilly Media - Fire Outage" />
+  <meta name="pagename" content="O'Reilly Media - Fire Outage" />
+  <meta name="site" content="O'Reilly" />
+  <meta name="twitter:title" content="O'Reilly Media - Fire Outage" />
+  <meta name="twitter:description" content=" " />
+  <meta name="twitter:site" content="@OReillyMedia" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="O'Reilly Media - Fire Outage" />
+  <meta name="twitter:card" content="summary" />
+
+
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="language_name" content="English">
+  <meta name="native_language_name" content="English">
+  <meta name="format-detection" content="telephone=no">
+
+  
+  <!--[if lte IE 9]>
+  <script>
+    'article aside footer header main nav section time'.replace(/\w+/g,function(n){document.createElement(n)})
+  </script>
+  <![endif]-->
+
+<style>
+@charset "UTF-8";
+
+/* Font-family defaults */
+body, p, ol, ul, td, h1, h2, h3, h4 {
+  font-family: 'guardian-text-oreilly', Helvetica, sans-serif;
+  font-variant-ligatures: none;
+}
+
+
+
+/* Reset */
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  vertical-align: baseline;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+  display: block;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  line-height: 1.5em;
+  color: #222;
+}
+ol, ul {
+  list-style: none;
+}
+blockquote, q {
+  quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+a, a:active {
+  color: #222;
+  text-decoration: underline;
+}
+a:hover {
+  text-decoration: underline;
+}
+/* End Reset */
+
+
+
+/* Page Layout */
+body > header {
+  width: 100%;
+  max-width: 1224px;
+  padding: 20px;
+  margin: 0 auto;
+}
+
+main .content,
+footer .content {
+  width: 100%;
+  max-width: 1224px;
+  padding: 0 20px;
+  margin: 0 auto;
+}
+/* End Page Layout */
+
+
+/* Pure Utility */
+.nowrap { 
+  white-space: nowrap; 
+}
+.breakword {
+      word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+.hidden {
+  display: none;
+}
+.content ul.bullet li {
+  list-style: disc;
+  margin-left: 1.2em;
+  margin-bottom: 8px;
+}
+.screen-reader-text { 
+  clip: rect(1px, 1px, 1px, 1px); 
+  height: 1px; 
+  width: 1px; 
+  overflow: hidden; 
+  position: absolute !important;
+}
+.sectionBreak,
+.sectionBreakODot {
+  clear: both;
+  position: relative;
+}
+.sectionBreak:before,
+.sectionBreakODot:before {
+  content: "";
+  display: block;
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  max-height: 260px;
+  border-top: 1px solid #f4f4f4;
+  background: -moz-linear-gradient(180deg, rgba(247,247,247,1) 0%, rgba(255,255,255,1) 100%);
+  background: -webkit-linear-gradient(180deg, rgba(247,247,247,1) 0%, rgba(255,255,255,1) 100%);
+  background: linear-gradient(180deg, rgba(247,247,247,1) 0%, rgba(255,255,255,1) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#f4f4f4",endColorstr="#ffffff",GradientType=1);
+}
+.sectionBreak .content,
+.sectionBreakODot .content {
+  position: relative;
+  z-index: 1;
+}
+/* End Pure Utility */
+
+
+
+/* videoContainer */
+.videoContainer {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%;
+  box-sizing: content-box;
+  box-shadow: 0 0 4px rgba(0,0,0,.3);
+}
+.videoContainer.videoContainer-kaltura {
+  height: 36px;
+}
+.videoContainer.videoContainer-aspect8x5 {
+  padding-bottom: 62.5%;
+}
+.videoContainer.videoContainer-aspect4x3 {
+  padding-bottom: 75%;
+}
+.videoContainer video,
+.videoContainer iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+/* End videoContainer */
+
+
+/* skipToMain */
+.skipToMain {
+  position: relative;
+  z-index: 501;
+  width: 100%;
+}
+.skipToMain a {
+  position: absolute;
+  z-index: 0;
+  display: block;
+  padding: 8px 12px 0;
+  height: 41px;
+  margin: -41px 0 0 10px;
+  cursor: pointer;
+  background: #e5e6e7;
+  border-radius: 2px;
+  -webkit-transition: margin .2s ease-in-out;
+  transition: margin .2s ease-in-out;
+  color: #222;
+}
+.skipToMain a:focus {
+  margin-top: 10px;
+  -webkit-transition: margin .2s ease-in;
+  transition: margin .2s ease-in;
+}
+/* End skipToMain */
+
+
+
+/* Global Header */
+body > header {
+  width: 100%;
+  padding: 20px;
+  background-color: #fff;
+}
+body > header nav:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+body > header .logo {
+  display: block;
+  width: 132px;
+  float: left;
+}
+body > header .logo img,
+body > header .logo svg {
+  display: block;
+  max-width: 100%;
+}
+@media (min-width: 32em) {
+  body > header .logo {
+    width: 198px;
+  }
+}
+@media (min-width: 72em) {
+  body > header {
+    padding: 46px 20px 24px;
+  }
+}
+/* end Global Header */
+
+
+
+/* mobileNavButton
+ * @author Jonathan Suh @jonsuh
+ * @site https://jonsuh.com/mobileNavButtons
+ * @link https://github.com/jonsuh/mobileNavButtons
+ */
+.mobileNavButton {
+  position: absolute;
+  z-index: 0;
+  right: 0;
+  top: 0;
+  padding: 10px 10px 10px;
+  display: block;
+  cursor: pointer;
+  transition-property: opacity, filter;
+  transition-duration: 0.15s;
+  transition-timing-function: linear;
+  font: inherit;
+  color: inherit;
+  text-transform: none;
+  background-color: transparent;
+  border: 0;
+  margin: 0;
+  overflow: visible;
+  outline: none;
+}
+.mobileNavButton:hover {
+  opacity: 0.7;
+}
+.mobileNavButton-box {
+  width: 48px;
+  height: 42px;
+  display: block;
+  position: relative;
+  margin-top: 1px;
+}
+.mobileNavButton:focus .mobileNavButton-box {
+  outline: auto;
+  outline: -webkit-focus-ring-color auto 5px;
+}
+.mobileNavButton-inner {
+  display: block;
+  top: 50%;
+  left: 10px;
+  margin-top: -2px;
+}
+.mobileNavButton-inner,
+.mobileNavButton-inner::before,
+.mobileNavButton-inner::after {
+  width: 28px;
+  height: 4px;
+  background-color: #222;
+  position: absolute;
+  z-index: 0;
+  transition-property: transform;
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
+}
+.mobileNavButton-inner::before,
+.mobileNavButton-inner::after {
+  content: "";
+  display: block;
+}
+.mobileNavButton-inner::before {
+  top: -9px;
+}
+.mobileNavButton-inner::after {
+  bottom: -9px;
+}
+.mobileNavButton--3dx .mobileNavButton-box {
+  perspective: 80px;
+}
+.mobileNavButton--3dx .mobileNavButton-inner {
+  transition: transform 0.15s cubic-bezier(0.645, 0.045, 0.355, 1), background-color 0s 0.1s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+.mobileNavButton--3dx .mobileNavButton-inner::before,
+.mobileNavButton--3dx .mobileNavButton-inner::after {
+  transition: transform 0s 0.1s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+.mobileNavButton--3dx.isActive .mobileNavButton-inner {
+  background-color: transparent;
+  transform: rotateY(180deg);
+}
+.mobileNavButton--3dx.isActive .mobileNavButton-inner::before {
+  transform: translate3d(0, 9px, 0) rotate(45deg);
+}
+.mobileNavButton--3dx.isActive .mobileNavButton-inner::after {
+  transform: translate3d(0, -9px, 0) rotate(-45deg);
+}
+@media (min-width: 32em) {
+  .mobileNavButton {
+    padding: 16px 10px;
+  }
+}
+@media (min-width: 72em) {
+  .mobileNavButton {
+    display: none;
+  }
+}
+/* end mobileNavButton */
+
+
+
+/* menuList aka Global Nav */
+.menuList {
+  position: absolute;
+  right: 0;
+  top: 64px;
+  z-index: 100;
+  width: 100%;
+}
+.menuList-itemsP1 {
+  padding: 10px 0;
+  background: rgba(247,247,247,.98);
+  border-bottom: 1px solid #fff;
+}
+.menuList.menuList-ctaHidden .menuList-itemsP1 {
+  display: none !important;
+}
+.menuList-itemsP2 {
+  padding: 10px 0;
+  background: rgba(247,247,247,.98);
+}
+.menuList-item > a,
+.menuList-subItem > a {
+  display: block;
+  padding:10px 20px 10px;
+  color: #222;
+  font-size: 18px;
+  font-size: 1.125rem;
+  line-height: 1.4em;
+  text-decoration: none;
+}
+.menuList-item > a:hover,
+.menuList-subItem > a:active {
+  text-decoration: underline;
+}
+.menuList-subItem > a {
+  border-left: 2px solid #d1d1d1;
+  margin-left: 20px;
+}
+.menuList-item > a[aria-current="page"],
+.menuList-subItem > a[aria-current="page"] {
+  color: #e00;
+}
+.menuList.mobileHidden .menuList-itemsP1,
+.menuList.mobileHidden .menuList-itemsP2 {
+  display: none;
+}
+
+@media (min-width: 32em) {
+  .menuList {
+    position: static;
+    right: auto;
+    top: auto;
+    z-index: auto;
+    float: left;
+    width: 75%;
+    width: calc(100% - 246px);
+    margin-left: 0;
+  }
+  .menuList .menuList-itemsP1 {
+    padding: 0;
+    background: none;
+    border-bottom: none;
+  }
+  .menuList.mobileHidden .menuList-itemsP1 {
+    display: block;
+  }
+  .menuList-itemsP1 {
+    float: right;
+  }
+  .menuList-itemsP2 {
+    position: absolute;
+    z-index: 100;
+    right: 0;
+    top: 76px;
+    width: 300px;
+    padding: 10px 0;
+    background: rgba(247,247,247,.98);
+  }
+  .menuList-signIn {
+    float: left;
+    margin-right: 16px;
+  }
+  .menuList-signIn > a {
+    display: block;
+    padding: 11px 0 0;
+    height: 30px;
+    font-size: 15px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1em;
+    color: #0045ff;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+    text-decoration: none;
+  }
+  .menuList-signIn > a[aria-current="page"] {
+    color: #0045ff;
+  }
+  .menuList .menuList-signIn a:hover,
+  .menuList .menuList-signIn a:active {
+    text-decoration: none;
+    border-bottom: 2px solid #0045ff;
+  }
+  .menuList-signIn a[aria-current="page"]:hover,
+  .menuList-signIn a[aria-current="page"]:active {
+    border-bottom: 2px solid #0045ff;
+  }
+  .menuList-tryNow {
+    float: left;
+    margin-top: 2px;
+    margin-right: 0;
+  }
+  .menuList-item .menuList-cta {
+    border-radius: 2px;
+    padding: 8px 16px;
+    color: #fff;
+    background-color: #0045ff;
+    font-size: 12px;
+    font-size: .75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+    text-decoration: none;
+  }
+  .menuList .menuList-cta:hover,
+  .menuList .menuList-cta:active {
+    text-decoration: none;
+    border-bottom: none;
+    box-shadow: 0 1px 4px rgba(0,0,0,.3);
+  }
+}
+@media (min-width: 72em) { /* 1152px */
+  .menuList {
+    width: calc(100% - 248px);
+    margin-left: 50px;
+  }
+  .menuList.mobileHidden .menuList-item,
+  .menuList.mobileHidden .menuList-itemsP2 {
+    display: block;
+  }
+  .menuList-itemsP2 {
+    position: static;
+    z-index: 0;
+    right: auto;
+    top: auto;
+    width: auto;
+    padding: 0;
+    background: none;
+  }
+  .menuList-itemsP2 .menuList-item {
+    position: relative;
+    display: block;
+    float: left;
+    margin-right: 24px;
+  }
+  .menuList-itemsP2 .menuList-item > a {
+    display: block;
+    padding: 12px 0 0;
+    height: 36px;
+    font-size: 15px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1em;
+    color: #222;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+    text-decoration: none;
+  }
+  .menuList-itemsP2 .menuList-item > a[aria-current="page"] {
+    color: #e00;
+    border-bottom: 2px solid #e00;
+  }
+  .menuList-itemsP2 .menuList-item > a:hover,
+  .menuList-itemsP2 .menuList-item > a:active {
+    text-decoration: none;
+  }
+  .menuList-itemsP2 .menuList-item:hover > a {
+    border-bottom: 2px solid #222;
+  }
+  .menuList-itemsP2 .menuList-item:hover > a[aria-current="page"] {
+    border-bottom: 2px solid #e00;
+  }
+  .menuList-itemsP2 .menuList-itemWithSub {
+    margin-right: 20px;
+  }
+  .menuList-itemsP2 .menuList-itemWithSub > a:after {
+    content: "";
+    display: block;
+    margin: 3px 0 0 6px;
+    float: right;
+    border: solid #ccc;
+    border-width: 0 2px 2px 0;
+    display: block;
+    padding: 2px;
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+  }
+  .menuList-itemsP2 .menuList-subList {
+    position: absolute;
+    z-index: 100;
+    top: 100%;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+    background: rgba(247,247,247,.98);
+    min-width: 200px;
+    padding:12px 0;
+  }
+  .menuList-itemsP2 .menuList-itemWithSub:hover .menuList-subList,
+  .menuList-itemsP2 .menuList-itemWithSub > a:focus ~ .menuList-subList,
+  .menuList-itemsP2 .menuList-itemWithSub .menuList-subList.isFocused {
+    height: auto;
+    opacity: 1;
+  }
+  .menuList-itemsP2 .menuList-item:focus-within .menuList-subList {
+    height: auto;
+    opacity: 1;
+  }
+  .menuList-itemsP2 .menuList-subList-conferences {
+    min-width: 340px;
+  }
+  .menuList-itemsP2 .menuList-subItem a {
+    display: block;
+    padding:10px 20px 10px;
+    line-height: 1em;
+    color: #222;
+    border-left: 0;
+    margin-left: 0;
+    text-decoration: none;
+  }
+  .menuList-itemsP2 .menuList-subItem a:hover,
+  .menuList-itemsP2 .menuList-subItem a:active {
+    color: #222;
+    text-decoration: underline;
+  }
+}
+/* end menuList aka Global Nav */
+
+
+
+/* footer */
+.footer {
+  background-color: #F1F1F1;
+  vertical-align: top;
+  color: #515151;
+  padding: 40px 0;
+} 
+.footer .content:after {
+  content: "";
+  display: table;
+  clear: both; 
+}
+.footer h2, .footer ul, .footer p {
+  font-size: 14px;
+  font-size: 0.875rem;
+  line-height: 2em;
+  font-family: 'guardian-text-oreilly', Arial, sans-serif;
+}
+.footer a {
+  color: #515151;
+  text-decoration: none;
+}
+.footer a:hover {
+  text-decoration: underline;
+}
+.footer h2 {
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.footer-main {
+  margin-bottom: 20px;
+}
+.footer-main:after {
+  content: " ";
+  display: table;
+  clear: both;
+}
+.footer-upcoming,
+.footer-approach,
+.footer-solutions,
+.footer-contact,
+.footer-download,
+.footer-links {
+  margin-bottom: 20px;
+} 
+.confName {
+  font-weight: 500;
+}
+.footer-contact svg {
+  width: 32px;
+  height: 32px;
+}
+.footer-upcoming li {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.footer-download h2, .footer-downloadLinks, .footer-download p, .footer-download ul li {
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+.footer-downloadLinks a {
+  display: inline-block;
+}
+.footer-downloadLinks a img {
+  display: block;
+  height: 44px;
+}
+.footer-download ul {
+  list-style: disc;
+  padding-left: 1rem;
+}
+.footer-download ul li {
+  padding-left: .5rem;
+}
+.footer-subfooter {
+  clear: both;
+}
+.footer-subfooterLogo,
+.footer-subfooter svg {
+  width: 118px;
+  height: 21px;
+  margin-bottom: 20px;
+}
+.footer-subfooter p { 
+  font-size: 12px;
+  font-size: 0.75rem;
+  line-height: 1.5em;
+  margin-bottom: 4px;
+}
+.footer-subfooter p a { 
+  font-weight: 500;
+}
+@media (max-width: 320px) {
+  .footer-upcoming li {
+    max-width: 272px;  
+  }
+}
+@media (min-width: 37.5em) { /* 600px */
+  .footer-mainLeft {
+    width: 47.5%;
+    margin-right: 5%;
+    float: left;
+  }
+  .footer-download {
+    width: 47.5%;
+    float: left;
+  }
+}
+@media (min-width: 56.25em) { /* 900px */
+  .footer {
+    position: relative;
+    overflow: hidden;
+  }
+  .footer .content {
+    position: relative;
+    z-index: 1;
+  }
+  .footer-mainLeft {
+    width: 55%;
+    margin-right: 5%;
+  }
+  .footer-mainLeftOne, .footer-mainLeftTwo {
+    float: left;
+  }
+  .footer-mainLeftOne {
+    margin-right: 11%;
+    width: 50.5%;
+  }
+  .footer-mainLeftTwo {
+    width: 38.5%;
+  }
+  .footer-download {
+    width: 40%;
+  }
+}
+@media (min-width: 75em) { /* 1200px */
+  .footer-mainLeft {
+    width: 60%;
+  }
+  .footer-download {
+    width: 35%;
+  }
+  .footer-mainLeftOne {
+    margin-right: 7.5%;
+    width: 42.5%;
+  }
+  .footer-mainLeftTwo {
+    width: 50%;
+  }
+  .footer-solutions, .footer-contact {
+    float: left;
+  }
+  .footer-solutions {
+    width: 30%;
+    margin-right: 15%;
+  }
+  .footer-contact {
+    width: 55%;
+  }
+}
+/* footer */
+
+
+/* hero */
+.hero {
+  position: relative;
+  z-index: 0;
+  clear: both;
+  background-repeat: no-repeat;
+  background-color: #eee;
+  color: #fff;
+  background-position: center top;
+  background-size: cover;
+  overflow: hidden;
+}
+.hero.hero-general {
+  overflow: hidden;
+  background: #0045ff;
+}
+.hero .content {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  position: relative;
+  z-index: 1;
+  height: 100%;
+}
+.hero-extra {
+  position: absolute;
+  z-index: 1;
+  bottom: 40px;
+  width: calc(100% - 40px);
+}
+.hero-extra p:last-child {
+  margin-bottom: 0;
+}
+.hero-cta {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 2px;
+  background-color: #fff;
+  font-size: 18px;
+  font-size: 1.125rem;
+  color: #e00;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  text-decoration: none;
+}
+.hero-cta:hover,
+.hero-cta:active {
+  color: #e00;
+  text-decoration: none;
+  box-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
+.hero-auto .hero-cta {
+  position: absolute;
+  bottom: 20px;
+  margin: 16px 0 20px;
+  background-color: #0045ff;
+  color: #fff;
+}
+.hero div.mobileHidden,
+.hero p.mobileHidden,
+.hero span.mobileHidden {
+  display: none;
+}
+.hero h1 {
+  margin: 16px 0 8px;
+  font-size: 46px;
+  font-size: 2.875rem;
+  line-height: 1.08em;
+  font-family: 'gilroy', Arial, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.hero p {
+  margin: 14px 0 20px 0;
+  font-size: 24px;
+  font-size: 1.5rem;
+  line-height: 1.4em;
+  font-family: 'guardian-text-oreilly', Arial, sans-serif;
+  font-weight: 400;
+}
+@media (min-width: 30em) {
+  .hero h1 {
+    max-width: 80%;
+  }
+  .hero p {
+    max-width: 80%;
+  }
+  .hero.hero-general h1 {
+    max-width: 100%;
+  }
+  .hero-auto .hero-cta {
+    margin: 24px 0 20px;
+  }
+}
+@media (min-width: 40em) { /* 640px */
+  .hero h1 {
+    margin: 60px 0 3px;
+    max-width: 60%;
+    font-size: 48px;
+    font-size: 3rem;
+    line-height: 1.125em;
+  }
+  .hero.hero-general h1 {
+    max-width: 100%;
+  }
+  .hero p {
+    margin: 14px 0 0 0;
+    max-width: 60%;
+    font-size: 32px;
+    font-size: 2rem;
+    line-height: 1.3em;
+    font-family: 'gilroy', Arial, sans-serif;
+    font-weight: 300;
+  }
+  .hero.hero-general p {
+    max-width: 100%;
+  }
+  .hero.hero-auto {
+    height: auto;
+  }
+  .hero-auto .hero-cta {
+    position: static;
+    bottom: auto;
+    margin: 24px 0 60px;
+  }
+  .hero div.mobileHidden,
+  .hero p.mobileHidden {
+    display: block;
+  }
+  .hero span.mobileHidden {
+    display: inline;
+  }
+  .hero div.desktopHidden,
+  .hero p.desktopHidden,
+  .hero span.desktopHidden {
+    display: none;
+  }
+}
+
+@media (min-width: 50em) {
+  .hero h1 {
+    margin: 76px 0 3px;
+    max-width: 40%;
+  }
+  .hero p {
+    max-width: 40%;
+  }
+  .hero.hero-general h1 {
+    max-width: 66%;
+  }
+  .hero.hero-general p {
+    max-width: 66%;
+  }
+}
+
+@media (min-width: 65em) {
+  .hero h1 {
+    margin: 76px 0 3px;
+    max-width: 46%;
+    font-size: 64px;
+    font-size: 4rem;
+    line-height: 1.08em;
+  }
+  .hero.hero-general h1 {
+    max-width: 66%;
+  }
+  .hero p {
+    margin: 14px 0 0 0;
+    max-width: 46%;
+    font-size: 48px;
+    font-size: 3rem;
+    line-height: 1.12em;
+    font-family: 'gilroy', Arial, sans-serif;
+    font-weight: 300;
+  }
+  .hero.hero-general p {
+    max-width: 66%;
+  }
+  .hero-auto .hero-cta {
+    margin: 40px 0 60px;
+  }
+  .hero div.mobileHidden,
+  .hero p.mobileHidden {
+    display: block;
+  }
+  .hero div.desktopHidden,
+  .hero p.desktopHidden {
+    display: none;
+  }
+}
+
+@media (min-width: 85em) {
+  .hero h1 {
+    margin: 94px 0 3px;
+    max-width: 46%;
+    font-size: 74px;
+    font-size: 4.625rem;
+    line-height: 1.08em;
+  }
+  .hero.hero-general h1 {
+    max-width: 66%;
+  }
+  .hero p {
+    margin: 14px 0 0 0;
+    max-width: 46%;
+    font-size: 50px;
+    font-size: 3.125rem;
+    line-height: 1.12em;
+    font-family: 'gilroy', Arial, sans-serif;
+    font-weight: 300;
+  }
+  .hero.hero-general p {
+    max-width: 66%;
+  }
+  .hero-auto .hero-cta {
+    margin: 40px 0 80px;
+  }
+}
+
+/* generic textSection */
+.textSection {
+  padding: 34px 0 14px;
+}
+.textSection h2 {
+  font-family: 'gilroy', Helvetica, sans-serif;
+  font-size: 24px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.2em;
+}
+.textSection p, 
+.textSection ul,
+.textSection ol,
+.textSection dl,
+.text-cta {
+  font-size: 16px;  
+  font-size: 1rem;
+  line-height: 1.5em;
+}
+.textSection h2,
+.textSection h3,
+.textSection h4,
+.textSection p, 
+.textSection ul,
+.textSection ol,
+.textSection dl,
+.textSection .videoWrapper,
+.text-cta {
+  max-width: 580px;
+  margin-bottom: 20px;
+}
+.textSection .textWide h2,
+.textSection .textWide h3,
+.textSection .textWide h4,
+.textSection .textWide p, 
+.textSection .textWide ul,
+.textSection .textWide ol,
+.textSection .textWide dl,
+.textSection .textWide .videoWrapper,
+.textWide .text-cta {
+  max-width: 700px;
+}
+.textSection ul li,
+.textSection ol li {
+  margin-bottom: 8px;
+}
+.textSection ol li {
+  margin-bottom: 8px; 
+}
+.textSection ol.number {
+  counter-reset: ol-counter; 
+}
+.textSection ol.roman{
+  counter-reset: ol-counter-i; 
+}
+.textSection ol.alpha {
+  counter-reset: ol-counter-a; 
+}
+.textSection ol.number li,
+.textSection ol.alpha li {
+  position: relative; 
+  padding-left: 2em; 
+}
+.textSection ol.roman li {
+  position: relative; 
+  padding-left: 1.9em;
+  margin-left: .1em;
+}
+.textSection ol.number li::before {  
+  content: counter(ol-counter)'.'; 
+  counter-increment: ol-counter; 
+}
+.textSection ol.roman li::before {  
+  content: counter(ol-counter-i, upper-roman)'.'; 
+  counter-increment: ol-counter-i; 
+}
+.textSection ol.alpha li::before {  
+  content: counter(ol-counter-a, upper-alpha)'.'; 
+  counter-increment: ol-counter-a; 
+}
+.textSection ol.number li::before,
+.textSection ol.roman li::before,
+.textSection ol.alpha li::before { 
+  display: block; 
+  position: absolute; 
+  left: 0; 
+}
+.textSection a:hover,
+.textSection a:active {
+  opacity: 0.8;
+}
+.textSection::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+@media (min-width: 40em) {
+  .textSection {
+    padding: 54px 0 34px;
+  }
+}
+@media (min-width: 53em) {
+  .textSection {
+    padding: 94px 0 74px;
+  }
+  .textSection h2 {
+    font-size: 48px;
+    font-size: 3rem;
+  }
+  .textSection p,
+  .textSection ul,
+  .textSection ol,
+  .textSection dl,
+  .text-cta {
+    font-size: 22px;
+    font-size: 1.375rem;
+  }
+  .textSection h2,
+  .textSection h3,
+  .textSection h4,
+  .textSection p,
+  .textSection ul,
+  .textSection ol,
+  .textSection dl,
+  .textSection .videoWrapper {
+    max-width: 800px;
+  }
+  .textSection .textWide h2,
+  .textSection .textWide p,
+  .textSection .textWide ul,
+  .textSection .textWide .videoWrapper {
+    max-width: 976px;
+  }
+}
+.secondaryText h2 {
+  font-size: 32px;
+  font-size: 2rem;
+  font-weight: 300;
+  line-height: 1.2em;
+}
+@media (min-width: 40em) {
+  .secondaryText h2 {
+    font-size: 48px;
+    font-size: 3rem;
+  }
+  .secondaryText p {
+    font-size: 22px;
+    font-size: 1.375rem;
+  }
+}
+
+
+/* legal pages - privacy, terms, cookies */
+.textSection.legal section {
+  margin-bottom: 20px;
+}
+.textSection.legal h2,
+.textSection.legal h3 {
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.textSection.legal h2 {
+  font-size: 21px;
+  font-size: 1.3rem; 
+}
+.textSection.legal h3 {
+  font-family: 'gilroy', Helvetica, sans-serif;
+  font-size: 18px;
+  font-size: 1.1rem;
+}
+.textSection.legal ul li {
+  list-style: disc;
+  margin-left: 20px;
+}
+.textSection.legal ul.toc,
+.textSection.legal ol.toc {
+  text-transform: uppercase;
+}
+.textSection.legal ul.toc {
+  margin-bottom: 8px;
+}
+.textSection.legal ol.toc li,
+.textSection.legal ul.toc li {
+  list-style: none; 
+  margin-left: 0;
+  padding-left: 2em; 
+}
+.textSection.legal dl {
+  margin-bottom: 20px;
+  padding: 0 20px;
+}
+.textSection.legal dt {
+  font-weight: 600;
+}
+.textSection.legal dd {
+  margin-bottom: 8px;
+}
+.textSection.legal .truste {
+  display: inline-block;
+  margin-bottom: 20px;
+}
+.textSection.legal .truste:first-of-type {
+  margin-right: 40px;
+}
+.textSection.legal .truste p {
+  margin-bottom: 10px;
+}
+@media (min-width: 30em) {
+  .textSection.legal dl {
+    padding: 0 40px;
+  }
+  .textSection.legal dl:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+  .textSection.legal dt, 
+  .textSection.legal dd {
+    float: left;
+  }
+  .textSection.legal dt {
+    clear: both;
+    width: 25%;
+  }
+  .textSection.legal dd {
+    width: 75%;
+  }
+}
+@media (min-width: 53em) {
+  .textSection.legal section,
+  .textSection.legal ol.toc {
+    margin-bottom: 40px;
+  }
+  .textSection.legal section:last-of-type {
+    margin-bottom: 20px;
+  }
+  .textSection.legal h2,
+  .textSection.legal h3 {
+    margin-bottom: 20px;
+  }
+  .textSection.legal h2 {
+    font-size: 28px;
+    font-size: 1.75rem;
+  }
+  .textSection.legal h3 {
+    font-size: 24px;
+    font-size: 1.5rem;
+    line-height: 1.2em;
+    margin-top: 40px;
+  }
+  .textSection.legal h2 + h3 {
+    margin-top: 20px;
+  }
+  .textSection.legal dd {
+    margin-bottom: 12px;
+  }
+}
+/* end legal pages */
+
+/* privacy-cookies page */
+.privacy-cookies-table-wrapper {
+  overflow-x: scroll;
+}
+.privacy-cookies-table {
+  width: 100%;
+  margin-bottom: 20px;
+}
+.privacy-cookies-table thead { 
+  background: #f1f1f1; 
+}
+.privacy-cookies-table th, 
+.privacy-cookies-table td { 
+  padding: 10px; 
+  border-left: 1px solid #f1f1f1; 
+  border-bottom: 1px solid #f1f1f1; 
+  text-align: left; 
+}
+.privacy-cookies-table th:last-of-type, 
+.privacy-cookies-table td:last-of-type { 
+  border-right: 1px solid #f1f1f1; 
+}
+.privacy-cookies-table td p {
+  font-size: 16px;
+  font-size: 1rem;
+}
+@media (min-width: 53em) {
+  .privacy-cookies-table {
+    margin-bottom: 40px;
+  }
+}
+/* end privacy-cookies page */
+
+/* terms of service */
+.textSection.legal.terms-of-service ul.toc {
+  margin-bottom: 40px;
+}
+.textSection.legal.terms-of-service ul.toc li {
+  padding-left: 0;
+}
+/* end terms of service */
+
+</style>
+
+
+  <!--[if IE 9]>
+  <style type="text/css">
+    #menu-toggle:checked ~ .mobile-nav { display:block; }
+    .mobile-nav { display: none; }
+  </style>
+  <![endif]-->
+
+
+
+</head>
+<body>
+
+
+  <div class="skipToMain" id="skipToMain"><a href="#maincontent"><span class="skipToMain-text">Skip to main content</span></a></div>
+
+
+  <header role="banner">
+
+    <nav role="navigation" aria-label="site sections">
+      <a href="https://www.oreilly.com" class="logo" title="home page"><svg xmlns="http://www.w3.org/2000/svg" width="198" height="36" viewBox="0 0 198 36">
+  <g fill="none" fill-rule="evenodd">
+    <path fill="#D3002D" d="M64.5161 20.2636C68.4431 19.0876 71.3061 15.4576 71.3081 11.1476 71.3061 5.8876 67.0461 1.6276 61.7861 1.6256L45.3831 1.6256 45.3831 34.2716 50.8251 34.2716 50.8251 20.6696 58.4031 20.6696 66.6121 34.2716 72.9581 34.2716 64.5161 20.2636zM50.8251 15.2266L50.8251 7.0646 61.7861 7.0646C64.0381 7.0686 65.8631 8.8926 65.8661 11.1476 65.8631 13.3976 64.0381 15.2226 61.7861 15.2266L50.8251 15.2266zM41.5274 5.0991C41.5274 7.3121 39.7344 9.1071 37.5224 9.1071 35.3104 9.1071 33.5164 7.3121 33.5164 5.0991 33.5164 2.8871 35.3104 1.0941 37.5224 1.0941 39.7344 1.0941 41.5274 2.8871 41.5274 5.0991M.0004 18.0991C.0014 8.7071 7.6114 1.0961 17.0044 1.0941 26.3964 1.0961 34.0054 8.7071 34.0074 18.0991 34.0054 27.4891 26.3964 35.1001 17.0044 35.1021 7.6114 35.1001.0014 27.4891.0004 18.0991M8.8274 9.9201C6.7314 12.0241 5.4424 14.8961 5.4414 18.0991 5.4424 21.2991 6.7314 24.1731 8.8274 26.2731 10.9284 28.3701 13.8024 29.6591 17.0044 29.6611 20.2054 29.6591 23.0774 28.3701 25.1794 26.2731 27.2764 24.1731 28.5654 21.2991 28.5654 18.0991 28.5654 14.8961 27.2764 12.0241 25.1794 9.9201 23.0774 7.8261 20.2054 6.5381 17.0044 6.5361 13.8024 6.5381 10.9284 7.8261 8.8274 9.9201"/>
+    <polygon fill="#D3002D" points="187.27 1.625 180.658 1.625 172.284 13.745 163.909 1.625 157.297 1.625 169.556 19.375 169.556 34.271 175 34.271 175 19.388"/>
+    <path fill="#D3002D" d="M193.7081,0.8974 C191.4841,0.8974 189.6801,2.7004 189.6801,4.9234 C189.6801,7.1464 191.4841,8.9494 193.7081,8.9494 C195.9291,8.9494 197.7341,7.1464 197.7341,4.9234 C197.7341,2.7004 195.9291,0.8974 193.7081,0.8974 M193.7081,8.3054 C191.8411,8.3054 190.3261,6.7904 190.3261,4.9234 C190.3261,3.0554 191.8411,1.5404 193.7081,1.5404 C195.5721,1.5404 197.0881,3.0554 197.0881,4.9234 C197.0881,6.7904 195.5721,8.3054 193.7081,8.3054"/>
+    <path fill="#D3002D" d="M195.5133,4.038 C195.5133,3.377 194.9803,2.842 194.3183,2.842 L192.0523,2.842 L192.0523,6.945 L192.7333,6.945 L192.7333,5.236 L193.8823,5.236 L194.7053,6.945 L195.4663,6.945 L194.6243,5.197 C195.1373,5.062 195.5133,4.595 195.5133,4.038 Z M192.7333,3.526 L194.3183,3.526 C194.6033,3.526 194.8293,3.755 194.8293,4.038 C194.8293,4.322 194.6033,4.552 194.3183,4.552 L192.7333,4.552 L192.7333,3.526 Z"/>
+    <polygon fill="#D3002D" points="99.462 7.064 99.462 1.625 76.766 1.625 76.766 34.271 99.462 34.271 99.462 28.829 82.205 28.829 82.205 20.668 98.631 20.668 98.631 15.226 82.205 15.226 82.205 7.064"/>
+    <polygon fill="#D3002D" points="116.303 34.271 116.303 1.625 121.744 1.625 121.744 28.829 137.44 28.829 137.44 34.271"/>
+    <polygon fill="#D3002D" points="141.875 34.271 141.875 1.625 147.318 1.625 147.318 28.829 163.013 28.829 163.013 34.271"/>
+    <polygon fill="#D3002D" points="105.172 34.271 110.612 34.271 110.612 1.625 105.172 1.625"/>
+  </g>
+</svg></a>
+
+      <button id="mobileNavButton" class="mobileNavButton mobileNavButton--collapse mobileNavButton--3dx" type="button" aria-expanded="false" aria-controls="menuList">
+        <span class="mobileNavButton-box">
+          <span class="mobileNavButton-inner"></span>
+        </span>
+      </button>
+
+  
+      <ul id="menuList" class="menuList mobileHidden ">
+        <li class="menuList-itemsP1">
+          <ul>
+            <li class="menuList-item menuList-signIn"><a href="https://www.oreilly.com/sign-in.html">Sign In</a></li>
+            <li class="menuList-item menuList-tryNow"><a class="menuList-cta" href="https://www.oreilly.com/online-learning/try-now.html">Try Now</a></li>
+          </ul>
+        </li>
+        <li class="menuList-itemsP2">
+          <ul>
+            <li class="menuList-item menuList-itemWithSub"><a href="https://www.oreilly.com/online-learning/index.html">Online Learning</a>
+              <ul class="menuList-subList">
+                <li class="menuList-subItem"><a href="https://www.oreilly.com/online-learning/individuals.html">Individuals</a></li>
+                <li class="menuList-subItem"><a href="https://www.oreilly.com/online-learning/teams.html">Teams</a></li>
+                <li class="menuList-subItem"><a href="https://www.oreilly.com/online-learning/enterprise.html">Enterprise</a></li>
+                <li class="menuList-subItem"><a href="https://www.oreilly.com/online-learning/government.html">Government</a></li>
+                <li class="menuList-subItem"><a href="https://www.oreilly.com/online-learning/academic.html">Academic</a></li>
+                <li class="menuList-subItem"><a href="https://www.oreilly.com/online-learning/features.html">Features</a></li>
+                <li class="menuList-subItem"><a href="https://www.oreilly.com/online-learning/custom-services.html">Custom Services</a></li>
+                <li class="menuList-subItem"><a href="https://www.oreilly.com/online-learning/pricing.html">Pricing</a></li>
+              </ul>
+            </li>
+            <li class="menuList-item menuList-itemWithSub"><a href="https://www.oreilly.com/conferences/">Conferences</a>
+              <ul class="menuList-subList menuList-subList-conferences">
+                <li class="menuList-subItem"><a href="https://conferences.oreilly.com/artificial-intelligence">Artificial Intelligence Conference</a></li>
+                <li class="menuList-subItem"><a href="https://conferences.oreilly.com/infrastructure-ops/io-ca">Infrastructure &amp; Ops Conference</a></li>
+                <li class="menuList-subItem"><a href="https://conferences.oreilly.com/oscon">Open Source Software Conference</a></li>
+                <li class="menuList-subItem"><a href="https://conferences.oreilly.com/software-architecture">Software Architecture Conference</a></li>
+                <li class="menuList-subItem"><a href="https://conferences.oreilly.com/strata">Strata Data Conference</a></li>
+                <li class="menuList-subItem"><a href="https://conferences.oreilly.com/tensorflow">TensorFlow World</a></li>
+                <li class="menuList-subItem"><a href="https://conferences.oreilly.com/velocity">Velocity Conference</a></li>
+              </ul></li>
+              <li class="menuList-item menuList-itemWithSub"><a href="https://www.oreilly.com/radar/">Radar</a>
+                <ul class="menuList-subList">
+                  <li class="menuList-subItem"><a href="https://www.oreilly.com/radar/topics/ai-ml/">AI/ML</a></li>
+                  <li class="menuList-subItem"><a href="https://www.oreilly.com/radar/topics/future-of-the-firm/">Future of the Firm</a></li>
+                  <li class="menuList-subItem"><a href="https://www.oreilly.com/radar/topics/innovation-and-disruption/" class="nowrap">Innovation &amp; Disruption</a></li>
+                  <li class="menuList-subItem"><a href="https://www.oreilly.com/radar/topics/next-architecture/">Next Architecture</a></li>
+                  <li class="menuList-subItem"><a href="https://www.oreilly.com/radar/topics/next-economy/">Next Economy</a></li>
+                  <li class="menuList-subItem"><a href="https://www.oreilly.com/radar/posts/">All Articles</a></li>
+                </ul>
+              </li>
+              <li class="menuList-item"><a href="https://www.oreilly.com/about/approach.html">Our Approach</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+
+  <main role="main" id="maincontent">
+
+  
+
+<style>
+@media (min-width: 53em) {
+  .textSection h2, .textSection h3, .textSection h4, .textSection p, .textSection ul, .textSection ol, .textSection dl, .textSection .videoWrapper {
+    max-width: 900px;
+  }
+}
+</style>
+
+    <section class="hero hero-general">
+      <div class="content">
+        <div class="hero-textWrap">
+          <h1>Well, this is <span class="nowrap">awkward&hellip;</h1>
+            
+        </div>
+      </div>
+    </section>
+
+    <section class="textSection error-500" id="error-500">
+      <div class="content">
+
+        <h2>Due to the fires and power outages in California, oreilly.com is unavailable.</h2>
+
+        <p>If you are looking for O&rsquo;Reilly online learning, <strong>visit <a href="https://learning.oreilly.com">learning.oreilly.com</a></strong>.</h2>
+
+        <p>Sorry for the inconvenience. For additional help, please contact our customer service team at <span class="nowrap"><a href='tel:+1-800-889-8969' aria-label='800. 8 8 9. 8 9 6 9.'>1-800-889-8969</a>,</span> <span class="nowrap"><a href='tel:+1-707-827-7019' aria-label='7 0 7. 8 2 7. 7 0 1 9.'>(707) 827-7019</a></span><span id="contact01"></span>
+<script type="text/javascript">
+<!--
+var name = "support";
+var domain = "oreilly.com";
+var display = "";
+var subject = "";
+var before = ", or ";
+var ending = "";
+var style = "";
+var show;
+if (display) {
+  show = display;
+} else {
+ show = (name + '&#64;' + domain);
+}
+document.getElementById("contact01").innerHTML = (before + '<a target="_blank" class="' + style + '" href="mailto:' + name + '&#64;' + domain + '?subject=' + subject + '">' + show + '</a>' + ending);
+// -->
+</script>
+
+</p>
+
+      </div>
+    </section>
+
+
+
+  </main>
+
+
+  <footer id="footer" class="footer">
+    <div class="content">
+
+      <div class="footer-subfooter">
+
+        <a href="https://www.oreilly.com" title="home page" aria-current="page"><svg xmlns="http://www.w3.org/2000/svg" width="198" height="36" viewBox="0 0 198 36">
+  <g fill="none" fill-rule="evenodd">
+    <path fill="#D3002D" d="M64.5161 20.2636C68.4431 19.0876 71.3061 15.4576 71.3081 11.1476 71.3061 5.8876 67.0461 1.6276 61.7861 1.6256L45.3831 1.6256 45.3831 34.2716 50.8251 34.2716 50.8251 20.6696 58.4031 20.6696 66.6121 34.2716 72.9581 34.2716 64.5161 20.2636zM50.8251 15.2266L50.8251 7.0646 61.7861 7.0646C64.0381 7.0686 65.8631 8.8926 65.8661 11.1476 65.8631 13.3976 64.0381 15.2226 61.7861 15.2266L50.8251 15.2266zM41.5274 5.0991C41.5274 7.3121 39.7344 9.1071 37.5224 9.1071 35.3104 9.1071 33.5164 7.3121 33.5164 5.0991 33.5164 2.8871 35.3104 1.0941 37.5224 1.0941 39.7344 1.0941 41.5274 2.8871 41.5274 5.0991M.0004 18.0991C.0014 8.7071 7.6114 1.0961 17.0044 1.0941 26.3964 1.0961 34.0054 8.7071 34.0074 18.0991 34.0054 27.4891 26.3964 35.1001 17.0044 35.1021 7.6114 35.1001.0014 27.4891.0004 18.0991M8.8274 9.9201C6.7314 12.0241 5.4424 14.8961 5.4414 18.0991 5.4424 21.2991 6.7314 24.1731 8.8274 26.2731 10.9284 28.3701 13.8024 29.6591 17.0044 29.6611 20.2054 29.6591 23.0774 28.3701 25.1794 26.2731 27.2764 24.1731 28.5654 21.2991 28.5654 18.0991 28.5654 14.8961 27.2764 12.0241 25.1794 9.9201 23.0774 7.8261 20.2054 6.5381 17.0044 6.5361 13.8024 6.5381 10.9284 7.8261 8.8274 9.9201"/>
+    <polygon fill="#D3002D" points="187.27 1.625 180.658 1.625 172.284 13.745 163.909 1.625 157.297 1.625 169.556 19.375 169.556 34.271 175 34.271 175 19.388"/>
+    <path fill="#D3002D" d="M193.7081,0.8974 C191.4841,0.8974 189.6801,2.7004 189.6801,4.9234 C189.6801,7.1464 191.4841,8.9494 193.7081,8.9494 C195.9291,8.9494 197.7341,7.1464 197.7341,4.9234 C197.7341,2.7004 195.9291,0.8974 193.7081,0.8974 M193.7081,8.3054 C191.8411,8.3054 190.3261,6.7904 190.3261,4.9234 C190.3261,3.0554 191.8411,1.5404 193.7081,1.5404 C195.5721,1.5404 197.0881,3.0554 197.0881,4.9234 C197.0881,6.7904 195.5721,8.3054 193.7081,8.3054"/>
+    <path fill="#D3002D" d="M195.5133,4.038 C195.5133,3.377 194.9803,2.842 194.3183,2.842 L192.0523,2.842 L192.0523,6.945 L192.7333,6.945 L192.7333,5.236 L193.8823,5.236 L194.7053,6.945 L195.4663,6.945 L194.6243,5.197 C195.1373,5.062 195.5133,4.595 195.5133,4.038 Z M192.7333,3.526 L194.3183,3.526 C194.6033,3.526 194.8293,3.755 194.8293,4.038 C194.8293,4.322 194.6033,4.552 194.3183,4.552 L192.7333,4.552 L192.7333,3.526 Z"/>
+    <polygon fill="#D3002D" points="99.462 7.064 99.462 1.625 76.766 1.625 76.766 34.271 99.462 34.271 99.462 28.829 82.205 28.829 82.205 20.668 98.631 20.668 98.631 15.226 82.205 15.226 82.205 7.064"/>
+    <polygon fill="#D3002D" points="116.303 34.271 116.303 1.625 121.744 1.625 121.744 28.829 137.44 28.829 137.44 34.271"/>
+    <polygon fill="#D3002D" points="141.875 34.271 141.875 1.625 147.318 1.625 147.318 28.829 163.013 28.829 163.013 34.271"/>
+    <polygon fill="#D3002D" points="105.172 34.271 110.612 34.271 110.612 1.625 105.172 1.625"/>
+  </g>
+</svg></a>
+
+        <p>&copy; 2019, O&rsquo;Reilly Media, Inc.  All trademarks and registered trademarks appearing on oreilly.com are the property of their respective owners.</p>
+        <p><a href="/terms/">Terms of Service</a> • <a href="/privacy.html">Privacy Policy</a> • <a href="/about/editorial_independence.html">Editorial Independence</a></p>
+      </div>
+
+    </div>
+  </footer>
+
+
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+  
+
+  <script>
+  $(function() {
+    //Toggle isActive and mobileHidden classes for mobileNavButton
+    $('nav #mobileNavButton').on('click', function() {
+      var expanded = $(this).attr('aria-expanded') === 'true' || false;
+      $(this).attr('aria-expanded', !expanded);
+      $(this).toggleClass("isActive");
+      $(this).next().toggleClass("mobileHidden");
+    });
+
+    //Toggle isFocused class for keyboard navigation of submenus
+    $('nav #menuList .menuList-subItem a').each(function(navItem) {
+      $(this).on('focus', function() {
+        $(this).parent().parent().toggleClass('isFocused');
+      });
+      $(this).on('blur', function() {
+        $(this).parent().parent().toggleClass('isFocused');
+      });
+    });
+
+
+    //Toggle mobileHidden class accordian elements
+    $('.mobileAccordian').each(function() {
+      var $btn = $(this).find('button');
+      var $target =  $(this).next();
+      $btn.on('click', function() {
+        var expanded = $btn.attr('aria-expanded') === 'true' || false;
+
+        $btn.attr('aria-expanded', !expanded);
+        $target.toggleClass("mobileHidden");  
+      });
+    });
+
+    // truncate months in footer conf listings
+    var months = $('.confMonth');
+    months.each(function(){    
+      var m = $(this).text();        
+      if(m.length < 3 ) return;
+      $(this).html(m.slice(0,3));
+    });
+  });
+  </script></body>
+
+
+</html>
+
+

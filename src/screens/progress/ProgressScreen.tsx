@@ -16,45 +16,45 @@ import { vi } from "date-fns/locale";
 
 import { useUserStore } from "../../store/userStore";
 import { getUserSessionsLast7Days } from "../../services/firebase/firestore";
-import { COLORS } from "../../constants/colors";
+// Bảng màu mới cho Dark Mode
 import { FONT_SIZES, FONT_WEIGHTS } from "../../constants/typography";
 
 const screenWidth = Dimensions.get("window").width;
 
+// --- Bảng màu mới cho Dark Mode ---
+const DARK_COLORS = {
+  background: "#101727", // Xanh đen đậm
+  card: "#1C2536", // Nền card
+  accent: "#3498db", // Xanh dương làm điểm nhấn
+  textPrimary: "#FFFFFF", // Chữ trắng
+  textSecondary: "#AAB4C3", // Chữ xám nhạt
+  border: "#344054", // Màu viền
+};
+
 // -------------------------
-// Types
+// Types (Không thay đổi)
 // -------------------------
 interface Session {
   id: string;
   workoutId?: string;
   durationMinutes: number;
-  // Firestore Timestamp or JS Date — we'll accept either and normalize
   completedAt: { toDate?: () => Date } | Date | string | number;
-  // other fields as needed...
 }
-
 interface Stats {
   totalSessions: number;
   totalMinutes: number;
   currentStreak: number;
   longestStreak?: number;
 }
-
 interface UserProfile {
   uid: string;
   displayName?: string;
   email?: string;
   avatarUrl?: string;
   stats?: Stats;
-  // other profile fields...
 }
-
-// -------------------------
-// Small helper: normalize completedAt -> Date
-// -------------------------
 const toDate = (value: Session["completedAt"]): Date => {
   if (!value) return new Date();
-  // If Firestore Timestamp-like object
   if (
     typeof value === "object" &&
     value !== null &&
@@ -63,17 +63,14 @@ const toDate = (value: Session["completedAt"]): Date => {
   ) {
     return (value as any).toDate();
   }
-  // If it's a Date already
   if (value instanceof Date) return value;
-  // If it's a number (ms) or numeric string
   const n = Number(value);
   if (!Number.isNaN(n)) return new Date(n);
-  // Last fallback: parse string
   return new Date(String(value));
 };
 
 // -------------------------
-// StatCard component
+// StatCard component (Đã cập nhật styles)
 // -------------------------
 const StatCard = ({
   icon,
@@ -86,7 +83,8 @@ const StatCard = ({
 }) => (
   <View style={styles.statCard}>
     <View style={styles.iconWrapper}>
-      <Ionicons name={icon} size={22} color={COLORS.deepPurple} />
+      {/* Màu icon đã thay đổi thành màu nhấn */}
+      <Ionicons name={icon} size={24} color={DARK_COLORS.accent} />
     </View>
     <Text style={styles.statValue}>{value}</Text>
     <Text style={styles.statLabel}>{label}</Text>
@@ -94,54 +92,42 @@ const StatCard = ({
 );
 
 // -------------------------
-// ProgressScreen
+// ProgressScreen (Đã cập nhật)
 // -------------------------
 const ProgressScreen: React.FC = () => {
-  // profile typed as UserProfile | null for safety
   const { profile } = useUserStore() as { profile: UserProfile | null };
-
   const [chartData, setChartData] = useState<number[] | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
-
     const processChartData = async () => {
       if (!profile) {
-        // no user, clear
         if (mounted) {
           setChartData(Array(7).fill(0));
           setLoading(false);
         }
         return;
       }
-
       try {
         setLoading(true);
-        // getUserSessionsLast7Days should return Session[]
         const sessions = (await getUserSessionsLast7Days(
           profile.uid
         )) as Session[];
-
-        // Initialize 7 days array: index 0 = oldest (6 days ago), index 6 = today
         const dailyMinutes = Array(7).fill(0);
         const today = new Date();
-
         sessions.forEach((session) => {
           const sessionDate = toDate(session.completedAt);
-          // Calculate difference in days (0 = today)
           const diffDays = Math.floor(
             (today.setHours(0, 0, 0, 0) -
               new Date(sessionDate).setHours(0, 0, 0, 0)) /
               (1000 * 3600 * 24)
           );
-          // if diffDays in [0,6], map to index 6 - diffDays (so array order oldest->newest)
           if (diffDays >= 0 && diffDays < 7) {
             const index = 6 - diffDays;
             dailyMinutes[index] += session.durationMinutes || 0;
           }
         });
-
         if (mounted) {
           setChartData(dailyMinutes);
           setLoading(false);
@@ -154,19 +140,15 @@ const ProgressScreen: React.FC = () => {
         }
       }
     };
-
     processChartData();
-
     return () => {
       mounted = false;
     };
   }, [profile]);
 
-  // Labels: produce 7 short day names (MON, TUE, ... in Vietnamese)
   const chartLabels = Array.from({ length: 7 }).map((_, i) => {
     const date = subDays(new Date(), 6 - i);
-    // 'EEE' -> abbreviated weekday, toUpperCase for consistent tight labels
-    return format(date, "EEE").toUpperCase();
+    return date.toLocaleDateString("vi-VN", { weekday: "short" }).toUpperCase();
   });
 
   const stats: Stats = {
@@ -208,8 +190,8 @@ const ProgressScreen: React.FC = () => {
         {loading ? (
           <ActivityIndicator
             size="large"
-            color={COLORS.deepPurple}
-            style={{ marginTop: 24 }}
+            color={DARK_COLORS.accent} // Cập nhật màu loading
+            style={{ marginTop: 40 }}
           />
         ) : (
           <View style={styles.chartWrapper}>
@@ -218,25 +200,28 @@ const ProgressScreen: React.FC = () => {
                 labels: chartLabels,
                 datasets: [{ data: chartData ?? Array(7).fill(0) }],
               }}
-              width={Math.min(screenWidth - 40, 720)}
-              height={240}
+              width={screenWidth - 40}
+              height={250}
               fromZero
-              showValuesOnTopOfBars={false}
+              showValuesOnTopOfBars={true} // Hiển thị giá trị trên cột
               yAxisLabel=""
               yAxisSuffix="p"
+              // --- Cấu hình chart cho Dark Mode ---
               chartConfig={{
-                backgroundColor: COLORS.creamWhite,
-                backgroundGradientFrom: COLORS.creamWhite,
-                backgroundGradientTo: COLORS.creamWhite,
+                backgroundColor: DARK_COLORS.card,
+                backgroundGradientFrom: DARK_COLORS.card,
+                backgroundGradientTo: DARK_COLORS.card,
                 decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(149, 117, 205, ${opacity})`, // deepPurple-ish
-                labelColor: (opacity = 1) => `rgba(70, 70, 70, ${opacity})`,
-                style: {
-                  borderRadius: 16,
+                color: (opacity = 1) => `rgba(52, 152, 219, ${opacity})`, // Sửa ở đây
+                labelColor: (opacity = 1) => `rgba(170, 180, 195, ${opacity})`, // Sửa ở đây
+                propsForDots: {
+                  r: "6",
+                  strokeWidth: "2",
+                  stroke: DARK_COLORS.accent,
                 },
                 propsForBackgroundLines: {
-                  strokeWidth: "0.6",
-                  stroke: "#ece7f6",
+                  stroke: DARK_COLORS.border, // Màu đường lưới
+                  strokeDasharray: "", // Nét liền
                 },
               }}
               style={styles.chart}
@@ -251,12 +236,12 @@ const ProgressScreen: React.FC = () => {
 export default ProgressScreen;
 
 // -------------------------
-// Styles
+// Styles (Đã thiết kế lại hoàn toàn)
 // -------------------------
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.creamWhite,
+    backgroundColor: DARK_COLORS.background,
   },
   scrollContent: {
     paddingHorizontal: 20,
@@ -265,56 +250,55 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: FONT_SIZES.h1,
-    fontWeight: FONT_WEIGHTS.bold ?? "700",
-    color: COLORS.deepPurple,
+    fontWeight: FONT_WEIGHTS.bold,
+    color: DARK_COLORS.textPrimary,
     textAlign: "center",
-    marginVertical: 18,
+    marginVertical: 20,
   },
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    marginBottom: 18,
+    marginBottom: 24,
   },
   statCard: {
-    width: "47%",
-    backgroundColor: COLORS.lavenderMist,
-    borderRadius: 16,
-    paddingVertical: 16,
+    width: "48%",
+    backgroundColor: DARK_COLORS.card,
+    borderRadius: 20, // Bo tròn nhiều hơn
+    padding: 20,
     alignItems: "center",
-    marginBottom: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 8,
-    elevation: 3,
+    marginBottom: 16,
+    // Sử dụng border thay cho shadow trong dark mode
+    borderWidth: 1,
+    borderColor: DARK_COLORS.border,
   },
   iconWrapper: {
-    backgroundColor: COLORS.peachCream,
-    padding: 8,
-    borderRadius: 999,
-    marginBottom: 8,
+    backgroundColor: "rgba(52, 152, 219, 0.1)", // Nền mờ cho icon
+    padding: 12,
+    borderRadius: 999, // Hình tròn
+    marginBottom: 12,
   },
   statValue: {
-    fontSize: FONT_SIZES.h2,
-    fontWeight: FONT_WEIGHTS.semiBold ?? "600",
-    color: COLORS.charcoal,
+    fontSize: FONT_SIZES.h1, // Tăng kích thước số liệu
+    fontWeight: FONT_WEIGHTS.bold,
+    color: DARK_COLORS.textPrimary,
   },
   statLabel: {
-    fontSize: FONT_SIZES.body,
-    color: COLORS.warmGray,
+    fontSize: FONT_SIZES.caption,
+    fontWeight: FONT_WEIGHTS.medium,
+    color: DARK_COLORS.textSecondary,
     marginTop: 6,
   },
   sectionTitle: {
     fontSize: FONT_SIZES.h2,
-    fontWeight: FONT_WEIGHTS.semiBold ?? "600",
-    color: COLORS.charcoal,
-    marginVertical: 12,
+    fontWeight: FONT_WEIGHTS.semiBold,
+    color: DARK_COLORS.textPrimary,
+    marginVertical: 16,
     textAlign: "center",
   },
   chartWrapper: {
     alignItems: "center",
-    marginTop: 8,
+    marginTop: 16,
   },
   chart: {
     borderRadius: 16,

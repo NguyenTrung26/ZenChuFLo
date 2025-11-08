@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -16,11 +16,55 @@ import { LinearGradient } from "expo-linear-gradient";
 import { COLORS } from "../../constants/colors";
 import { FONT_SIZES, FONT_WEIGHTS } from "../../constants/typography";
 import Button from "../../components/common/Button";
+import { auth } from "../../services/firebase/config";
+import {
+  isWorkoutFavorited,
+  addFavorite,
+  removeFavorite,
+  addWorkoutIfNotExists,
+} from "../../services/firebase/firestore";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "WorkoutDetail">;
 
+const HEADER_HEIGHT = 300; // Chiều cao của ảnh header
 const WorkoutDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const { workout } = route.params;
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [loadingFavorite, setLoadingFavorite] = useState(true);
+  const user = auth.currentUser;
+
+  // Kiểm tra trạng thái yêu thích khi màn hình tải
+  useEffect(() => {
+    if (!user) return;
+    const checkFavoriteStatus = async () => {
+      setLoadingFavorite(true);
+      const favorited = await isWorkoutFavorited(user.uid, workout.id);
+      setIsFavorited(favorited);
+      setLoadingFavorite(false);
+    };
+    checkFavoriteStatus();
+  }, [user, workout.id]);
+
+  // Hàm xử lý khi nhấn nút trái tim
+  const handleToggleFavorite = async () => {
+    if (!user || loadingFavorite) return;
+    setLoadingFavorite(true);
+
+    if (isFavorited) {
+      await removeFavorite(user.uid, workout.id);
+      setIsFavorited(false);
+    } else {
+      // KHI THÊM MỘT MỤC YÊU THÍCH MỚI
+      // Bước 1: Đảm bảo bài tập này tồn tại trong collection 'workouts'
+      await addWorkoutIfNotExists(workout);
+
+      // Bước 2: Thêm ID của nó vào collection 'favorites'
+      await addFavorite(user.uid, workout.id);
+      setIsFavorited(true);
+    }
+
+    setLoadingFavorite(false);
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={["bottom", "left", "right"]}>
@@ -52,11 +96,16 @@ const WorkoutDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         {/* Content */}
         <View style={styles.content}>
           <View style={styles.actionsContainer}>
-            <TouchableOpacity style={styles.actionButton}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={handleToggleFavorite}
+              disabled={loadingFavorite}
+            >
+              {/* Thay đổi icon dựa trên state */}
               <Ionicons
-                name="heart-outline"
+                name={isFavorited ? "heart" : "heart-outline"}
                 size={24}
-                color={COLORS.charcoal}
+                color={isFavorited ? COLORS.red : COLORS.charcoal}
               />
               <Text style={styles.actionText}>Yêu thích</Text>
             </TouchableOpacity>

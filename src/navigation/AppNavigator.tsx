@@ -29,7 +29,9 @@ import ProgressScreen from "../screens/progress/ProgressScreen";
 import ProfileScreen from "../screens/profile/ProfileScreen";
 import EditProfileScreen from "../screens/profile/EditProfileScreen";
 import RemindersScreen from "../screens/profile/RemindersScreen";
-
+import TermsScreen from "../screens/profile/TermsScreen";
+import HelpScreen from "../screens/profile/HelpScreen";
+import FavoritesScreen from "../screens/profile/FavoritesScreen";
 // Types
 import {
   AuthStackParamList,
@@ -109,6 +111,21 @@ function ProfileNavigator() {
         name="Reminders"
         component={RemindersScreen}
         options={{ title: "Nhắc nhở" }}
+      />
+      <ProfileStack.Screen
+        name="TermsAndPolicy"
+        component={TermsScreen}
+        options={{ title: "Điều khoản & Chính sách" }}
+      />
+      <ProfileStack.Screen
+        name="HelpAndSupport"
+        component={HelpScreen}
+        options={{ title: "Trợ giúp & Hỗ trợ" }}
+      />
+      <ProfileStack.Screen
+        name="Favorites"
+        component={FavoritesScreen}
+        options={{ title: "Bài tập yêu thích" }}
       />
     </ProfileStack.Navigator>
   );

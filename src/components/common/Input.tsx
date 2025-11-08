@@ -5,31 +5,38 @@ import {
   View,
   Text,
   TextInputProps,
+  ViewStyle,
+  TextStyle,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS } from "../../constants/colors";
 import { FONT_SIZES } from "../../constants/typography";
 
 interface InputProps extends TextInputProps {
-  label: string;
-  value: string;
-  onChangeText: (text: string) => void;
-  placeholder?: string;
-  keyboardType?: "default" | "email-address" | "numeric";
-  autoCapitalize?: "none" | "sentences" | "words" | "characters";
-  secureTextEntry?: boolean;
-  icon?: string; // hỗ trợ icon
-  error?: string; // hỗ trợ hiển thị lỗi
+  label?: string;
+  icon?: string;
+  error?: string;
+  containerStyle?: ViewStyle;
+  labelStyle?: TextStyle;
+  inputStyle?: TextStyle;
 }
 
-const Input: React.FC<InputProps> = ({ label, icon, error, ...props }) => {
+const Input: React.FC<InputProps> = ({
+  label,
+  icon,
+  error,
+  containerStyle,
+  labelStyle,
+  inputStyle,
+  ...props
+}) => {
   return (
-    <View style={styles.container}>
-      {label && <Text style={styles.label}>{label}</Text>}
+    <View style={[styles.container, containerStyle]}>
+      {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
       <View style={styles.inputWrapper}>
         {icon && (
           <Ionicons
-            name={icon as any} // ép kiểu cho Ionicons
+            name={icon as any}
             size={20}
             color={COLORS.lightGray}
             style={styles.icon}
@@ -40,6 +47,7 @@ const Input: React.FC<InputProps> = ({ label, icon, error, ...props }) => {
             styles.input,
             icon ? { paddingLeft: 40 } : null,
             error ? styles.inputError : null,
+            inputStyle,
           ]}
           placeholderTextColor={COLORS.lightGray}
           {...props}

@@ -17,6 +17,7 @@ export const COLORS = {
   sunsetOrange: "#FFB74D",
   deepPurple: "#9575CD",
   forestGreen: "#66BB6A",
+  softPurple: "#B39DDB",
 
   // System Colors
   white: "#FFFFFF",
