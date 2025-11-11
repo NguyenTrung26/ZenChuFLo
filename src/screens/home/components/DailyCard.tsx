@@ -23,7 +23,7 @@ const DailyCard: React.FC<DailyCardProps> = ({ workout, onPress }) => {
       <Text style={styles.sectionTitle}>Bài tập hôm nay</Text>
       <TouchableOpacity activeOpacity={0.8} onPress={onPress}>
         <ImageBackground
-          source={{ uri: workout.thumbnailUrl }}
+          source={workout.thumbnailUrl}
           style={styles.container}
           imageStyle={{ borderRadius: 20 }}
         >

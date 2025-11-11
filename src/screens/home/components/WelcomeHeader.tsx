@@ -1,11 +1,10 @@
 // src/screens/home/components/WelcomeHeader.tsx
 
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
-import { auth } from "../../../services/firebase/config";
-// --- THAY ĐỔI 1: Chỉ import hàm, không import type ---
-import { createUserMood } from "../../../services/firebase/firestore";
-// --- THAY ĐỔI 2: Import type từ nguồn tập trung ---
+import { View, Text, StyleSheet, Alert } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { HomeStackParamList } from "../../../navigation/types";
 import { MoodValue } from "../../../types";
 import * as Haptics from "expo-haptics";
 import { COLORS } from "../../../constants/colors";
@@ -15,12 +14,16 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from "react-native-reanimated";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 interface WelcomeHeaderProps {
   name: string | null;
 }
 
-// Sử dụng MoodValue type ở đây
+// Định nghĩa kiểu cho navigation hook
+type NavigationProp = NativeStackNavigationProp<HomeStackParamList>;
+
+// Mảng mood
 const moods: { emoji: string; value: MoodValue }[] = [
   { emoji: "😃", value: "awesome" },
   { emoji: "🙂", value: "good" },
@@ -44,13 +47,9 @@ const MoodButton = ({
   onSelect: (mood: MoodValue) => void;
 }) => {
   const scale = useSharedValue(1);
-
   const animatedStyle = useAnimatedStyle(() => {
-    // Áp dụng hiệu ứng Spring khi isSelected thay đổi
     scale.value = withSpring(isSelected ? 1.2 : 1);
-    return {
-      transform: [{ scale: scale.value }],
-    };
+    return { transform: [{ scale: scale.value }] };
   });
 
   return (
@@ -64,25 +63,17 @@ const MoodButton = ({
 };
 
 const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({ name }) => {
-  // Sử dụng MoodValue type ở đây
   const [selectedMood, setSelectedMood] = useState<MoodValue | null>(null);
+  const navigation = useNavigation<NavigationProp>();
 
-  // Sử dụng MoodValue type ở đây
-  const handleMoodSelect = async (mood: MoodValue) => {
-    // Nếu người dùng nhấn lại vào mood đã chọn, không làm gì cả
+  const handleMoodSelect = (mood: MoodValue) => {
     if (selectedMood === mood) return;
-
-    const user = auth.currentUser;
-    if (!user) return;
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setSelectedMood(mood);
 
-    const result = await createUserMood(user.uid, mood);
-    if (!result.success) {
-      Alert.alert("Lỗi", "Không thể lưu tâm trạng của bạn. Vui lòng thử lại.");
-      setSelectedMood(null);
-    }
+    // Điều hướng sang màn hình MoodJournal để nhập notes
+    navigation.navigate("MoodJournal", { mood });
   };
 
   return (
@@ -106,19 +97,16 @@ const WelcomeHeader: React.FC<WelcomeHeaderProps> = ({ name }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    paddingTop: 20, // Thêm padding để không dính sát viền trên
-    marginBottom: 20, // Thêm khoảng cách với phần tử bên dưới
-  },
+  container: { paddingTop: 20, marginBottom: 20 },
   greeting: {
-    fontSize: FONT_SIZES.h1, // Tăng kích thước cho nổi bật
+    fontSize: FONT_SIZES.h1,
     fontWeight: FONT_WEIGHTS.bold,
     color: COLORS.charcoal,
   },
   prompt: {
     fontSize: FONT_SIZES.body,
     fontWeight: FONT_WEIGHTS.regular,
-    color: COLORS.lightGray, // Dùng màu phụ cho ít quan trọng hơn
+    color: COLORS.lightGray,
     marginTop: 4,
   },
   moodsContainer: {
@@ -130,11 +118,10 @@ const styles = StyleSheet.create({
     padding: 10,
     width: 56,
     height: 56,
-    borderRadius: 28, // Bo tròn hoàn hảo
+    borderRadius: 28,
     backgroundColor: COLORS.white,
     alignItems: "center",
     justifyContent: "center",
-    // Thêm shadow tinh tế hơn
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -143,11 +130,8 @@ const styles = StyleSheet.create({
   },
   selectedMood: {
     backgroundColor: COLORS.sageGreen,
-    // Bỏ transform ở đây vì Reanimated sẽ xử lý
   },
-  moodText: {
-    fontSize: 28,
-  },
+  moodText: { fontSize: 28 },
 });
 
 export default WelcomeHeader;

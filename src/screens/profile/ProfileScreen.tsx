@@ -105,6 +105,11 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
       action: () => navigation.navigate("Favorites"),
     },
     {
+      icon: "book-outline" as const,
+      label: "Nhật ký của tôi",
+      action: () => navigation.navigate("Journal"),
+    },
+    {
       icon: "document-text-outline" as const,
       label: "Điều khoản & Chính sách",
       action: () => navigation.navigate("TermsAndPolicy"),

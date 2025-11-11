@@ -66,7 +66,11 @@ export const addWorkoutIfNotExists = async (workout: Workout) => {
 };
 
 // --- HÀM MỚI ---
-export const createUserMood = async (uid: string, mood: MoodValue) => {
+export const createUserMood = async (
+  uid: string,
+  mood: MoodValue,
+  notes?: string | null
+) => {
   if (!uid) return { success: false, error: "No user ID provided" };
   try {
     const moodsCollectionRef = collection(db, "moods");
@@ -74,6 +78,7 @@ export const createUserMood = async (uid: string, mood: MoodValue) => {
       userId: uid,
       mood: mood,
       createdAt: Timestamp.now(),
+      notes: notes,
     });
     return { success: true, error: null };
   } catch (error: any) {
@@ -127,7 +132,11 @@ export const getUserSessionsLast7Days = async (uid: string) => {
 };
 
 // --- HÀM MỚI: TẠO MỘT BẢN GHI PHIÊN TẬP ---
-export const createSession = async (uid: string, workout: any) => {
+export const createSession = async (
+  uid: string,
+  workout: any,
+  notes: string | null
+) => {
   if (!uid) return { success: false, error: "No user ID provided" };
   try {
     const sessionsCollectionRef = collection(db, "sessions");
@@ -138,6 +147,7 @@ export const createSession = async (uid: string, workout: any) => {
       durationMinutes: workout.durationMinutes,
       completedAt: Timestamp.now(),
       type: workout.type.toLowerCase(), // 'yoga', 'thiền', v.v.
+      notes: notes,
     });
     return { success: true, error: null };
   } catch (error: any) {
@@ -251,4 +261,74 @@ export const getFavoriteWorkoutIds = async (uid: string): Promise<string[]> => {
   const q = query(collection(db, "favorites"), where("userId", "==", uid));
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map((doc) => doc.data().workoutId);
+};
+
+// Kiểu dữ liệu cho session và mood
+type SessionEntry = {
+  type: "session";
+  completedAt: Timestamp;
+  workoutTitle?: string;
+  notes?: string;
+};
+
+type MoodEntry = {
+  type: "mood";
+  createdAt: Timestamp;
+  notes?: string;
+};
+export type JournalEntry = SessionEntry | MoodEntry;
+
+export const getUserJournalEntries = async (
+  uid: string
+): Promise<JournalEntry[]> => {
+  if (!uid) return [];
+
+  try {
+    // Lấy sessions có ghi chú
+    const sessionsQuery = query(
+      collection(db, "sessions"),
+      where("userId", "==", uid),
+      where("notes", "!=", null),
+      orderBy("completedAt", "desc")
+    );
+
+    // Lấy moods có ghi chú
+    const moodsQuery = query(
+      collection(db, "moods"),
+      where("userId", "==", uid),
+      where("notes", "!=", null),
+      orderBy("createdAt", "desc")
+    );
+
+    const [sessionsSnapshot, moodsSnapshot] = await Promise.all([
+      getDocs(sessionsQuery),
+      getDocs(moodsQuery),
+    ]);
+
+    // Map về kiểu SessionEntry
+    const sessions: SessionEntry[] = sessionsSnapshot.docs.map((doc) => ({
+      type: "session",
+      ...(doc.data() as Omit<SessionEntry, "type">),
+    }));
+
+    // Map về kiểu MoodEntry
+    const moods: MoodEntry[] = moodsSnapshot.docs.map((doc) => ({
+      type: "mood",
+      ...(doc.data() as Omit<MoodEntry, "type">),
+    }));
+
+    // Gộp lại và sắp xếp theo ngày giảm dần
+    const allEntries: JournalEntry[] = [...sessions, ...moods].sort((a, b) => {
+      const dateA =
+        a.type === "session" ? a.completedAt.toDate() : a.createdAt.toDate();
+      const dateB =
+        b.type === "session" ? b.completedAt.toDate() : b.createdAt.toDate();
+      return dateB.getTime() - dateA.getTime();
+    });
+
+    return allEntries;
+  } catch (error) {
+    console.error("Error getting journal entries:", error);
+    return [];
+  }
 };

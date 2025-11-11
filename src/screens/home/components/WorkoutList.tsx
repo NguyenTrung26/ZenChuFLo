@@ -54,7 +54,7 @@ const WorkoutCard = ({
     >
       <View style={styles.cardWrapper}>
         <ImageBackground
-          source={{ uri: item.thumbnailUrl }}
+          source={item.thumbnailUrl}
           style={styles.cardImage}
           imageStyle={styles.imageStyle}
         >

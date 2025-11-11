@@ -31,3 +31,25 @@ export const COLORS = {
   background: "#F9FAFB",
   textPrimary: "#333333",
 };
+
+const lightColors = {
+  background: "#FFF9F0", // creamWhite
+  card: "#FFFFFF",
+  text: "#4A4A4A", // charcoal
+  textSecondary: "#BDBDBD", // lightGray
+  primary: "#9575CD", // deepPurple
+  accent: "#FFB74D", // sunsetOrange
+  // ... thêm các màu khác
+};
+
+const darkColors = {
+  background: "#121212", // Màu nền tối tiêu chuẩn
+  card: "#1E1E1E", // Màu thẻ tối
+  text: "#E0E0E0", // Màu text sáng
+  textSecondary: "#757575", // Màu text phụ tối
+  primary: "#BB86FC", // Màu tím sáng hơn cho dark mode
+  accent: "#FFB74D", // Giữ nguyên màu cam
+  // ...
+};
+export const LIGHT_THEME = lightColors;
+export const DARK_THEME = darkColors;

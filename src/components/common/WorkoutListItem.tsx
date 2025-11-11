@@ -26,7 +26,7 @@ const WorkoutListItem: React.FC<WorkoutListItemProps> = ({ workout }) => {
 
   return (
     <TouchableOpacity style={styles.container} onPress={handlePress}>
-      <Image source={{ uri: workout.thumbnailUrl }} style={styles.thumbnail} />
+      <Image source={workout.thumbnailUrl} style={styles.thumbnail} />
       <View style={styles.infoContainer}>
         <Text style={styles.title}>{workout.title}</Text>
         <Text style={styles.meta}>

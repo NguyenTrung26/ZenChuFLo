@@ -1,35 +1,31 @@
 // src/screens/home/HomeScreen.tsx
-
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
-  ActivityIndicator,
   View,
   StyleSheet,
-  ScrollView,
   Text,
+  ScrollView,
   TouchableOpacity,
-  RefreshControl,
   Dimensions,
+  Image,
+  FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
+import { MotiView } from "moti";
 import { auth } from "../../services/firebase/config";
-import { workouts as mockWorkouts, categories } from "../../data/mockData";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { HomeStackParamList } from "../../navigation/types";
-import { COLORS } from "../../constants/colors";
 import { FONT_SIZES, FONT_WEIGHTS } from "../../constants/typography";
-
-import { getYogaWorkoutsFromApi } from "../../services/api/yogaApi";
+import { getAllWorkouts } from "../../services/WorkoutService";
 import type { Workout } from "../../types";
 
 import WelcomeHeader from "./components/WelcomeHeader";
 import DailyCard from "./components/DailyCard";
 import CategorySection from "./components/CategorySection";
-import HomeScreenLoader from "./components/HomeScreenLoader";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "HomeList">;
-
 type TabId = "popular" | "latest" | "beginner" | "meditation";
 
 interface Tab {
@@ -40,105 +36,82 @@ interface Tab {
 }
 
 const { width } = Dimensions.get("window");
-const CARD_WIDTH = (width - 56) / 2; // 20px padding + 16px gap
+const HORIZONTAL_PADDING = 20;
+const CARD_GAP = 16;
+const CARD_WIDTH = (width - HORIZONTAL_PADDING * 2 - CARD_GAP) / 2;
 
-// Định nghĩa các tab với màu sắc
+// Dark theme colors
+const DARK_COLORS = {
+  background: "#0A0E27",
+  surface: "#151932",
+  surfaceLight: "#1E2440",
+  border: "#2A3150",
+  text: "#E8E9F3",
+  textSecondary: "#9BA1C4",
+  accent: "#6C5CE7",
+  accentLight: "#A29BFE",
+};
+
 const TABS: Tab[] = [
   {
     id: "popular",
     label: "Phổ biến",
     emoji: "🔥",
-    gradient: ["#FFB74D", "#FF8A65"] as const,
+    gradient: ["#FF6B6B", "#EE5A6F"] as const,
   },
   {
     id: "latest",
     label: "Mới nhất",
     emoji: "✨",
-    gradient: ["#81C784", "#66BB6A"] as const,
+    gradient: ["#4ECDC4", "#44A08D"] as const,
   },
   {
     id: "beginner",
     label: "Người mới",
     emoji: "🌱",
-    gradient: ["#64B5F6", "#42A5F5"] as const,
+    gradient: ["#A8E6CF", "#56AB91"] as const,
   },
   {
     id: "meditation",
     label: "Thiền",
     emoji: "🧘",
-    gradient: ["#BA68C8", "#9575CD"] as const,
+    gradient: ["#B197FC", "#8C7CFF"] as const,
   },
 ];
 
 const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const user = auth.currentUser;
-  const [workouts, setWorkouts] = useState<Workout[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const allWorkouts = useMemo(() => getAllWorkouts(), []);
   const [activeTab, setActiveTab] = useState<TabId>("popular");
-  const [error, setError] = useState<string | null>(null);
 
-  // Fetch workouts function
-  const fetchWorkouts = useCallback(async () => {
-    try {
-      setError(null);
-      const data = await getYogaWorkoutsFromApi();
-      setWorkouts(data.length ? data : mockWorkouts);
-    } catch (error) {
-      console.error("Failed to fetch workouts:", error);
-      setError("Không thể tải dữ liệu");
-      setWorkouts(mockWorkouts);
-    } finally {
-      setIsLoading(false);
-      setRefreshing(false);
-    }
-  }, []);
+  const featuredWorkout = useMemo(() => allWorkouts[0] ?? null, [allWorkouts]);
 
-  // Pull to refresh
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    fetchWorkouts();
-  }, [fetchWorkouts]);
-
-  useEffect(() => {
-    fetchWorkouts();
-  }, [fetchWorkouts]);
-
-  // Tách bài tập nổi bật - memoized
-  const featuredWorkout = useMemo(() => workouts[0] ?? null, [workouts]);
-
-  // Lọc workouts theo tab - memoized
   const getWorkoutsByTab = useCallback(
     (tabId: TabId): Workout[] => {
-      const remainingWorkouts = workouts.slice(1);
-
+      const remaining = allWorkouts.slice(1);
       switch (tabId) {
         case "popular":
-          return remainingWorkouts.slice(0, 5);
-
+          return remaining.slice(0, 6);
         case "latest":
-          return remainingWorkouts.slice(2, 7);
-
+          return remaining.slice(2, 8);
         case "beginner":
-          return remainingWorkouts.filter(
-            (w) => w.level !== "Advanced" && w.level !== "Intermediate"
-          );
-
+          return remaining.filter((w) => w.level === "Beginner").slice(0, 6);
         case "meditation":
-          return remainingWorkouts.filter((w) => {
-            const title = w.title.toLowerCase();
-            return (
-              title.includes("thiền") ||
-              title.includes("meditation") ||
-              title.includes("relaxation")
-            );
-          });
-
+          return remaining
+            .filter((w) => {
+              const title = w.title.toLowerCase();
+              return (
+                title.includes("thiền") ||
+                title.includes("meditation") ||
+                title.includes("relaxation")
+              );
+            })
+            .slice(0, 6);
         default:
-          return remainingWorkouts;
+          return remaining;
       }
     },
-    [workouts]
+    [allWorkouts]
   );
 
   const currentWorkouts = useMemo(
@@ -146,392 +119,330 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
     [activeTab, getWorkoutsByTab]
   );
 
-  // Navigate to workout detail
   const navigateToWorkout = useCallback(
-    (workout: Workout) => {
-      navigation.navigate("WorkoutDetail", { workout });
-    },
+    (workout: Workout) => navigation.navigate("WorkoutDetail", { workout }),
     [navigation]
   );
 
-  // Get level color
-  const getLevelColor = (level: string) => {
+  const getLevelColor = (level: string): [string, string] => {
     switch (level) {
       case "Beginner":
-        return "#66BB6A";
+        return ["#56AB91", "#A8E6CF"];
       case "Intermediate":
-        return "#FFB74D";
+        return ["#FFB86C", "#FF8C42"];
       case "Advanced":
-        return "#EF5350";
+        return ["#FF6B9D", "#C73E6E"];
       default:
-        return COLORS.deepPurple;
+        return ["#6C5CE7", "#A29BFE"];
     }
   };
 
-  // Render workout card
   const renderWorkoutCard = useCallback(
-    (workout: Workout) => {
-      const levelColor = getLevelColor(workout.level);
+    ({ item, index }: { item: Workout; index: number }) => {
+      const levelGradient = getLevelColor(item.level);
+
       return (
-        <TouchableOpacity
-          key={workout.id ?? workout.title}
-          style={styles.workoutCard}
-          activeOpacity={0.85}
-          onPress={() => navigateToWorkout(workout)}
+        <MotiView
+          from={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: "timing", duration: 400, delay: index * 80 }}
+          style={styles.cardWrapper} // ✅ cardWrapper đã thêm
         >
-          <LinearGradient
-            colors={["#F8F5FF", "#FFFFFF"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.workoutGradient}
+          <TouchableOpacity
+            style={styles.workoutCard}
+            activeOpacity={0.85}
+            onPress={() => navigateToWorkout(item)}
           >
-            <View style={styles.workoutImageContainer}>
-              <View style={styles.workoutImagePlaceholder}>
-                <Text style={styles.workoutImageText}>🧘</Text>
-              </View>
-              <View
-                style={[styles.levelBadge, { backgroundColor: levelColor }]}
+            <View style={styles.cardImageContainer}>
+              <Image source={item.thumbnailUrl} style={styles.workoutImage} />
+              <LinearGradient
+                colors={
+                  ["transparent", "rgba(10,14,39,0.95)"] as [string, string]
+                }
+                style={styles.workoutImageOverlay}
+              />
+
+              {/* Level Badge */}
+              <LinearGradient
+                colors={levelGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.levelBadge}
               >
-                <Text style={styles.levelText}>{workout.level}</Text>
-              </View>
+                <Text style={styles.levelText}>{item.level}</Text>
+              </LinearGradient>
+
+              {/* Duration Badge */}
+              <BlurView intensity={20} tint="dark" style={styles.durationBadge}>
+                <Text style={styles.durationIcon}>⏱</Text>
+                <Text style={styles.durationText}>{item.durationMinutes}m</Text>
+              </BlurView>
             </View>
+
             <View style={styles.workoutInfo}>
               <Text style={styles.workoutTitle} numberOfLines={2}>
-                {workout.title}
+                {item.title}
               </Text>
-              <View style={styles.workoutMetaContainer}>
-                <View style={styles.durationBadge}>
-                  <Text style={styles.durationText}>
-                    ⏱️ {workout.durationMinutes} phút
-                  </Text>
-                </View>
-              </View>
             </View>
-          </LinearGradient>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        </MotiView>
       );
     },
     [navigateToWorkout]
   );
 
-  // Loading state
-  if (isLoading) {
-    return <HomeScreenLoader />;
-  }
-
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={COLORS.deepPurple}
-            colors={[COLORS.deepPurple]}
-          />
-        }
-      >
-        <WelcomeHeader name={user?.displayName ?? null} />
-
-        {error && (
-          <View style={styles.errorBanner}>
-            <Text style={styles.errorIcon}>⚠️</Text>
-            <Text style={styles.errorText}>{error}</Text>
-          </View>
-        )}
-
-        {featuredWorkout && (
-          <DailyCard
-            workout={featuredWorkout}
-            onPress={() => navigateToWorkout(featuredWorkout)}
-          />
-        )}
-
-        <CategorySection categories={categories} />
-
-        {/* Tab Section */}
-        <View style={styles.tabSection}>
-          {/* Tab Header */}
-          <View style={styles.tabHeader}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.tabScrollContent}
-            >
-              {TABS.map((tab) => {
-                const isActive = activeTab === tab.id;
-                return (
-                  <TouchableOpacity
-                    key={tab.id}
-                    style={[styles.tabButton]}
-                    onPress={() => setActiveTab(tab.id)}
-                    activeOpacity={0.7}
-                  >
-                    {isActive ? (
-                      <LinearGradient
-                        colors={tab.gradient}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 1, y: 0 }}
-                        style={styles.tabButtonGradient}
-                      >
-                        <Text style={styles.tabEmoji}>{tab.emoji}</Text>
-                        <Text style={styles.tabButtonTextActive}>
-                          {tab.label}
-                        </Text>
-                      </LinearGradient>
-                    ) : (
-                      <View style={styles.tabButtonInactive}>
-                        <Text style={styles.tabEmojiInactive}>{tab.emoji}</Text>
-                        <Text style={styles.tabButtonText}>{tab.label}</Text>
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-          </View>
-
-          {/* Tab Content */}
-          <View style={styles.tabContent}>
-            {currentWorkouts.length > 0 ? (
-              <View style={styles.workoutGrid}>
-                {currentWorkouts.map(renderWorkoutCard)}
-              </View>
-            ) : (
-              <View style={styles.emptyState}>
-                <LinearGradient
-                  colors={["#F8F5FF", "#FFF9F0"]}
-                  style={styles.emptyStateGradient}
+    <View style={styles.container}>
+      <SafeAreaView style={styles.safeArea}>
+        <FlatList
+          ListHeaderComponent={
+            <>
+              <WelcomeHeader name={user?.displayName ?? null} />
+              {featuredWorkout && (
+                <View style={styles.featuredSection}>
+                  <DailyCard
+                    workout={featuredWorkout}
+                    onPress={() => navigateToWorkout(featuredWorkout)}
+                  />
+                </View>
+              )}
+              <CategorySection categories={[]} />
+              {/* Tabs */}
+              <View style={styles.tabSection}>
+                <Text style={styles.sectionTitle}>Khám phá</Text>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.tabScrollContent}
                 >
-                  <Text style={styles.emptyStateEmoji}>🧘‍♀️</Text>
-                  <Text style={styles.emptyStateText}>
-                    Chưa có bài tập nào trong mục này
-                  </Text>
-                  <Text style={styles.emptyStateSubtext}>
-                    Hãy quay lại sau để khám phá thêm nhé!
-                  </Text>
-                </LinearGradient>
+                  {TABS.map((tab) => {
+                    const isActive = activeTab === tab.id;
+                    return (
+                      <TouchableOpacity
+                        key={tab.id}
+                        onPress={() => setActiveTab(tab.id)}
+                        activeOpacity={0.7}
+                        style={{ marginRight: 12 }}
+                      >
+                        {isActive ? (
+                          <LinearGradient
+                            colors={tab.gradient}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={styles.tabButtonActive}
+                          >
+                            <Text style={styles.tabEmoji}>{tab.emoji}</Text>
+                            <Text style={styles.tabTextActive}>
+                              {tab.label}
+                            </Text>
+                          </LinearGradient>
+                        ) : (
+                          <View style={styles.tabButtonInactive}>
+                            <Text style={styles.tabEmojiInactive}>
+                              {tab.emoji}
+                            </Text>
+                            <Text style={styles.tabTextInactive}>
+                              {tab.label}
+                            </Text>
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </ScrollView>
               </View>
-            )}
-          </View>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+            </>
+          }
+          data={currentWorkouts}
+          renderItem={renderWorkoutCard}
+          keyExtractor={(item) => item.id ?? item.title}
+          numColumns={2}
+          columnWrapperStyle={styles.workoutGrid}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <LinearGradient
+                colors={
+                  [DARK_COLORS.surface, DARK_COLORS.surfaceLight] as [
+                    string,
+                    string
+                  ]
+                }
+                style={styles.emptyStateContainer}
+              >
+                <Text style={styles.emptyStateEmoji}>🧘‍♀️</Text>
+                <Text style={styles.emptyStateText}>Chưa có bài tập</Text>
+                <Text style={styles.emptyStateSubtext}>
+                  Hãy quay lại sau để khám phá thêm
+                </Text>
+              </LinearGradient>
+            </View>
+          }
+        />
+      </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    paddingHorizontal: 20,
+  container: { flex: 1, backgroundColor: DARK_COLORS.background },
+  safeArea: { flex: 1 },
+  listContent: { paddingBottom: 24 },
+  featuredSection: { marginBottom: 8 },
+
+  // Tabs
+  tabSection: { marginTop: 24, marginBottom: 16, paddingHorizontal: 20 },
+  sectionTitle: {
+    fontSize: FONT_SIZES.h3,
+    fontWeight: FONT_WEIGHTS.bold,
+    color: DARK_COLORS.text,
+    marginBottom: 12,
+    letterSpacing: 0.3,
   },
-  center: {
-    flex: 1,
-    justifyContent: "center",
+  tabScrollContent: { paddingRight: 20 },
+  tabButtonActive: {
+    flexDirection: "row",
     alignItems: "center",
-    backgroundColor: COLORS.background,
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: FONT_SIZES.body,
-    color: COLORS.deepPurple,
-    fontWeight: FONT_WEIGHTS.medium,
-  },
-  errorBanner: {
-    backgroundColor: "#FFF3E0",
-    padding: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: 16,
-    marginBottom: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    shadowColor: "#FF8A65",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  errorIcon: {
-    fontSize: 24,
-    marginRight: 12,
-  },
-  errorText: {
-    flex: 1,
-    color: "#E65100",
-    fontSize: FONT_SIZES.body,
-    fontWeight: FONT_WEIGHTS.medium,
-  },
-  tabSection: {
-    marginTop: 32,
-    marginBottom: 24,
-  },
-  tabHeader: {
-    marginBottom: 24,
-  },
-  tabScrollContent: {
-    paddingHorizontal: 0,
-    gap: 12,
-  },
-  tabButton: {
-    marginRight: 8,
-  },
-  tabButtonGradient: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 24,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
     shadowRadius: 6,
     elevation: 4,
   },
   tabButtonInactive: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 24,
-    backgroundColor: COLORS.white,
-    borderWidth: 1.5,
-    borderColor: "#E0E0E0",
-  },
-  tabEmoji: {
-    fontSize: 18,
-    marginRight: 8,
-  },
-  tabEmojiInactive: {
-    fontSize: 18,
-    marginRight: 8,
-    opacity: 0.6,
-  },
-  tabButtonText: {
-    fontSize: FONT_SIZES.body,
-    fontWeight: FONT_WEIGHTS.semiBold,
-    color: COLORS.charcoal,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 16,
+    backgroundColor: DARK_COLORS.surface,
+    borderWidth: 1,
+    borderColor: DARK_COLORS.border,
     opacity: 0.7,
   },
-  tabButtonTextActive: {
-    fontSize: FONT_SIZES.body,
+  tabEmoji: { fontSize: 14, marginRight: 5 },
+  tabEmojiInactive: { fontSize: 14, marginRight: 5, opacity: 0.6 },
+  tabTextActive: {
+    fontSize: 13,
     fontWeight: FONT_WEIGHTS.bold,
-    color: COLORS.white,
+    color: "#FFFFFF",
+    letterSpacing: 0.2,
   },
-  tabContent: {
-    minHeight: 200,
+  tabTextInactive: {
+    fontSize: 13,
+    fontWeight: FONT_WEIGHTS.semiBold,
+    color: DARK_COLORS.textSecondary,
   },
+
+  // Card wrapper
+  cardWrapper: { flex: 1, marginBottom: 16 },
+
+  // Workout Cards
   workoutGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    paddingHorizontal: 20,
     justifyContent: "space-between",
+    marginBottom: 16,
   },
   workoutCard: {
-    width: CARD_WIDTH,
-    marginBottom: 20,
     borderRadius: 20,
+    backgroundColor: DARK_COLORS.surface,
     overflow: "hidden",
-    shadowColor: "#9575CD",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
     shadowRadius: 12,
-    elevation: 5,
+    elevation: 8,
   },
-  workoutGradient: {
-    flex: 1,
-  },
-  workoutImageContainer: {
-    width: "100%",
-    aspectRatio: 1.1,
+  cardImageContainer: {
     position: "relative",
+    width: "100%",
+    aspectRatio: 0.85,
   },
-  workoutImagePlaceholder: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#F3E5F5",
-  },
-  workoutImageText: {
-    fontSize: 56,
+  workoutImage: { width: "100%", height: "100%", resizeMode: "cover" },
+  workoutImageOverlay: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: "70%",
   },
   levelBadge: {
     position: "absolute",
-    top: 12,
-    right: 12,
+    top: 10,
+    left: 10,
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 5,
     borderRadius: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 3,
   },
   levelText: {
-    fontSize: FONT_SIZES.caption,
+    fontSize: 11,
     fontWeight: FONT_WEIGHTS.bold,
-    color: COLORS.white,
-  },
-  workoutInfo: {
-    padding: 16,
-  },
-  workoutTitle: {
-    fontSize: FONT_SIZES.body,
-    fontWeight: FONT_WEIGHTS.bold,
-    color: COLORS.charcoal,
-    marginBottom: 10,
-    lineHeight: 20,
-    letterSpacing: 0.2,
-  },
-  workoutMetaContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    color: "#FFFFFF",
+    letterSpacing: 0.5,
   },
   durationBadge: {
-    backgroundColor: "#F3E5F5",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 10,
-  },
-  durationText: {
-    fontSize: FONT_SIZES.caption,
-    fontWeight: FONT_WEIGHTS.semiBold,
-    color: COLORS.deepPurple,
-  },
-  emptyState: {
-    paddingVertical: 40,
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+    overflow: "hidden",
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
   },
-  emptyStateGradient: {
+  durationIcon: { fontSize: 12, marginRight: 4 },
+  durationText: {
+    fontSize: 12,
+    fontWeight: FONT_WEIGHTS.bold,
+    color: "#FFFFFF",
+  },
+  workoutInfo: { padding: 12, backgroundColor: DARK_COLORS.surface },
+  workoutTitle: {
+    fontSize: 14,
+    fontWeight: FONT_WEIGHTS.bold,
+    color: DARK_COLORS.text,
+    lineHeight: 20,
+  },
+
+  // Empty State
+  emptyState: {
+    paddingVertical: 60,
+    paddingHorizontal: 20,
+    alignItems: "center",
+  },
+  emptyStateContainer: {
     paddingVertical: 48,
     paddingHorizontal: 32,
     borderRadius: 24,
     alignItems: "center",
     width: "100%",
-    shadowColor: "#9575CD",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: DARK_COLORS.border,
   },
-  emptyStateEmoji: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
+  emptyStateEmoji: { fontSize: 64, marginBottom: 16 },
   emptyStateText: {
     fontSize: FONT_SIZES.h3,
     fontWeight: FONT_WEIGHTS.bold,
-    color: COLORS.charcoal,
+    color: DARK_COLORS.text,
     marginBottom: 8,
     textAlign: "center",
   },
   emptyStateSubtext: {
     fontSize: FONT_SIZES.body,
-    color: COLORS.charcoal,
-    opacity: 0.6,
+    color: DARK_COLORS.textSecondary,
     textAlign: "center",
+    lineHeight: 20,
   },
 });
 

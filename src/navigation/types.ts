@@ -1,5 +1,5 @@
 // Import Workout type
-import { Workout } from "../types";
+import { Workout, MoodValue } from "../types";
 export type AuthStackParamList = {
   Login: undefined;
   Signup: undefined;
@@ -23,6 +23,7 @@ export type HomeStackParamList = {
   WorkoutDetail: { workout: Workout }; // Màn hình chi tiết, nhận một đối tượng workout
   WorkoutPlayer: { workout: Workout };
   Completion: { workout: Workout };
+  MoodJournal: { mood: MoodValue };
 };
 export type ProfileStackParamList = {
   ProfileHome: undefined;
@@ -31,4 +32,5 @@ export type ProfileStackParamList = {
   TermsAndPolicy: undefined;
   HelpAndSupport: undefined;
   Favorites: undefined;
+  Journal: undefined;
 };

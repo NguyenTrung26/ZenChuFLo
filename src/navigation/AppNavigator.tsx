@@ -32,6 +32,9 @@ import RemindersScreen from "../screens/profile/RemindersScreen";
 import TermsScreen from "../screens/profile/TermsScreen";
 import HelpScreen from "../screens/profile/HelpScreen";
 import FavoritesScreen from "../screens/profile/FavoritesScreen";
+import JournalScreen from "../screens/profile/JournalScreen";
+import { COLORS } from "../constants/colors";
+import MoodJournalScreen from "../screens/home/MoodJournalScreen";
 // Types
 import {
   AuthStackParamList,
@@ -87,6 +90,15 @@ function HomeNavigator() {
         component={CompletionScreen}
         options={{ presentation: "modal" }}
       />
+      <HomeStack.Screen
+        name="MoodJournal"
+        component={MoodJournalScreen}
+        options={{
+          presentation: "modal", // Hiển thị dưới dạng modal
+          headerShown: true, // Hiển thị header để có nút đóng
+          title: "Ghi chú tâm trạng",
+        }}
+      />
     </HomeStack.Navigator>
   );
 }
@@ -94,7 +106,17 @@ function HomeNavigator() {
 // --- Profile Stack Navigator ---
 function ProfileNavigator() {
   return (
-    <ProfileStack.Navigator>
+    <ProfileStack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: COLORS.creamWhite, // Màu nền cho header
+        },
+        headerTintColor: COLORS.charcoal, // Màu chữ và nút back
+        headerTitleStyle: {
+          fontWeight: "bold",
+        },
+      }}
+    >
       <ProfileStack.Screen
         name="ProfileHome"
         component={ProfileScreen}
@@ -126,6 +148,11 @@ function ProfileNavigator() {
         name="Favorites"
         component={FavoritesScreen}
         options={{ title: "Bài tập yêu thích" }}
+      />
+      <ProfileStack.Screen
+        name="Journal"
+        component={JournalScreen}
+        options={{ title: "Nhật ký của tôi" }}
       />
     </ProfileStack.Navigator>
   );

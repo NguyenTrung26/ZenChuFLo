@@ -1,5 +1,5 @@
 // src/types/index.ts
-
+import { ImageSourcePropType } from "react-native";
 // Kiểu dữ liệu cho một bài tập
 export interface Workout {
   id: string;
@@ -8,8 +8,8 @@ export interface Workout {
   type: "Yoga" | "Thiền" | "Hít thở" | string; // Thêm string để linh hoạt với API
   durationMinutes: number;
   level: "Beginner" | "Intermediate" | "Advanced" | string;
-  thumbnailUrl: string;
-  videoUrl?: string; // Optional vì không phải bài nào cũng có video
+  thumbnailUrl: ImageSourcePropType;
+  videoUrl?: string;
   rating: number | string;
   reviewCount: number;
 }

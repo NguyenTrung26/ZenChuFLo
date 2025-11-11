@@ -71,7 +71,7 @@ const WorkoutDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       <ScrollView>
         {/* Header Image */}
         <ImageBackground
-          source={{ uri: workout.thumbnailUrl }}
+          source={workout.thumbnailUrl}
           style={styles.headerImage}
         >
           <TouchableOpacity
