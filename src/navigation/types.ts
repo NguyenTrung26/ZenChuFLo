@@ -1,5 +1,6 @@
 // Import Workout type
 import { Workout, MoodValue } from "../types";
+
 export type AuthStackParamList = {
   Login: undefined;
   Signup: undefined;
@@ -12,19 +13,26 @@ export type MainTabParamList = {
   Progress: undefined;
   Profile: undefined;
 };
+
 // Thêm type cho onboarding
 export type OnboardingStackParamList = {
   Goal: undefined;
   Level: undefined;
   Duration: undefined;
 };
+
 export type HomeStackParamList = {
-  HomeList: undefined; // Màn hình danh sách chính (HomeScreen của chúng ta)
-  WorkoutDetail: { workout: Workout }; // Màn hình chi tiết, nhận một đối tượng workout
+  HomeList: undefined;
+  WorkoutDetail: { workout: Workout };
   WorkoutPlayer: { workout: Workout };
   Completion: { workout: Workout };
-  MoodJournal: { mood: MoodValue };
+  MoodJournal: undefined;
+  Breathing: undefined;
+  MeditationTimer: undefined;
+  Soundscapes: undefined;
+  PersonalizedPlan: undefined;
 };
+
 export type ProfileStackParamList = {
   ProfileHome: undefined;
   EditProfile: undefined;
@@ -33,4 +41,5 @@ export type ProfileStackParamList = {
   HelpAndSupport: undefined;
   Favorites: undefined;
   Journal: undefined;
+  HealthProfile: undefined;
 };

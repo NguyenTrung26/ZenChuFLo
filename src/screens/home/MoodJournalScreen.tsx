@@ -1,93 +1,111 @@
-// src/screens/home/MoodJournalScreen.tsx
-
 import React, { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
+  TouchableOpacity,
   TextInput,
+  ScrollView,
   KeyboardAvoidingView,
   Platform,
-  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { MotiView } from "moti";
+import { DARK_COLORS, COLORS } from "../../constants/colors";
+import { FONT_SIZES, FONT_WEIGHTS } from "../../constants/typography";
+import Button from "../../components/common/Button";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { HomeStackParamList } from "../../navigation/types";
-import { auth } from "../../services/firebase/config";
-import { createUserMood } from "../../services/firebase/firestore";
-import Button from "../../components/common/Button";
-import { COLORS } from "../../constants/colors";
-import { FONT_SIZES, FONT_WEIGHTS } from "../../constants/typography";
-import { MoodValue } from "../../types"; // đảm bảo import MoodValue
 
 type Props = NativeStackScreenProps<HomeStackParamList, "MoodJournal">;
 
-const MoodJournalScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { mood } = route.params; // Nhận mood đã chọn từ màn hình Home
-  const [notes, setNotes] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
+const MOODS = [
+  { value: "awesome", label: "Tuyệt vời", emoji: "🤩", color: "#FFD93D" },
+  { value: "good", label: "Tốt", emoji: "😊", color: "#6BCB77" },
+  { value: "neutral", label: "Bình thường", emoji: "😐", color: "#4D96FF" },
+  { value: "bad", label: "Tệ", emoji: "😔", color: "#FF6B6B" },
+  { value: "terrible", label: "Rất tệ", emoji: "😫", color: "#2C3E50" },
+];
 
-  // Ánh xạ giá trị mood sang emoji và text, dùng Record<MoodValue, ...> để TypeScript hiểu chắc chắn
-  const moodDetails: Record<MoodValue, { emoji: string; text: string }> = {
-    awesome: { emoji: "😃", text: "Tuyệt vời" },
-    good: { emoji: "🙂", text: "Tốt" },
-    neutral: { emoji: "😐", text: "Bình thường" },
-    bad: { emoji: "😔", text: "Không ổn" },
-    terrible: { emoji: "😢", text: "Tệ" },
-  };
+const MoodJournalScreen: React.FC<Props> = ({ navigation }) => {
+  const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const [note, setNote] = useState("");
 
-  // Kiểm tra mood hợp lệ, fallback nếu không hợp lệ
-  const selectedMoodDetail = moodDetails[mood] ?? {
-    emoji: "❓",
-    text: "Không xác định",
-  };
-
-  const handleSave = async () => {
-    const user = auth.currentUser;
-    if (!user) return;
-
-    setIsSaving(true);
-
-    const result = await createUserMood(user.uid, mood, notes.trim() || null);
-    setIsSaving(false);
-
-    if (result.success) {
-      Alert.alert("Đã lưu", "Cảm xúc của bạn đã được ghi lại.");
-      navigation.goBack(); // Đóng modal sau khi lưu
-    } else {
-      Alert.alert("Lỗi", "Không thể lưu tâm trạng của bạn. Vui lòng thử lại.");
-    }
+  const handleSave = () => {
+    // TODO: Save to Firestore
+    console.log("Saved mood:", { mood: selectedMood, note });
+    navigation.goBack();
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["bottom"]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.keyboardView}
+        style={{ flex: 1 }}
       >
-        <View style={styles.content}>
-          <Text style={styles.moodEmoji}>{selectedMoodDetail.emoji}</Text>
-          <Text style={styles.moodText}>
-            Bạn đang cảm thấy: {selectedMoodDetail.text}
-          </Text>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.header}>
+            <Text style={styles.title}>Hôm nay bạn cảm thấy thế nào?</Text>
+            <Text style={styles.subtitle}>
+              Hãy dành một chút thời gian để lắng nghe bản thân.
+            </Text>
+          </View>
 
-          <Text style={styles.journalTitle}>Ghi chú thêm (tùy chọn)</Text>
-          <TextInput
-            style={styles.textInput}
-            multiline
-            placeholder="Chuyện gì đang xảy ra..."
-            placeholderTextColor={COLORS.lightGray}
-            value={notes}
-            onChangeText={setNotes}
-          />
-        </View>
+          <View style={styles.moodContainer}>
+            {MOODS.map((mood, index) => {
+              const isSelected = selectedMood === mood.value;
+              return (
+                <MotiView
+                  key={mood.value}
+                  from={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: isSelected ? 1.1 : 1 }}
+                  transition={{ delay: index * 100 }}
+                >
+                  <TouchableOpacity
+                    style={[
+                      styles.moodButton,
+                      isSelected && {
+                        backgroundColor: mood.color,
+                        borderColor: mood.color,
+                      },
+                    ]}
+                    onPress={() => setSelectedMood(mood.value)}
+                  >
+                    <Text style={styles.moodEmoji}>{mood.emoji}</Text>
+                    <Text
+                      style={[
+                        styles.moodLabel,
+                        isSelected && { color: COLORS.white },
+                      ]}
+                    >
+                      {mood.label}
+                    </Text>
+                  </TouchableOpacity>
+                </MotiView>
+              );
+            })}
+          </View>
 
-        <View style={styles.buttonContainer}>
+          <View style={styles.noteContainer}>
+            <Text style={styles.label}>Ghi chú (tùy chọn)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Bạn đang nghĩ gì?..."
+              placeholderTextColor={DARK_COLORS.textSecondary}
+              multiline
+              value={note}
+              onChangeText={setNote}
+              maxLength={200}
+            />
+          </View>
+        </ScrollView>
+
+        <View style={styles.footer}>
           <Button
-            title={isSaving ? "Đang lưu..." : "Lưu lại"}
+            title="Lưu nhật ký"
             onPress={handleSave}
-            loading={isSaving}
-            disabled={isSaving}
+            disabled={!selectedMood}
             gradient
           />
         </View>
@@ -97,51 +115,65 @@ const MoodJournalScreen: React.FC<Props> = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.creamWhite,
+  container: { flex: 1, backgroundColor: DARK_COLORS.background },
+  scrollContent: { padding: 20 },
+  header: { marginBottom: 30, alignItems: "center" },
+  title: {
+    fontSize: FONT_SIZES.h2,
+    fontWeight: FONT_WEIGHTS.bold,
+    color: DARK_COLORS.text,
+    textAlign: "center",
+    marginBottom: 8,
   },
-  keyboardView: {
-    flex: 1,
-    flexDirection: "column",
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-    alignItems: "center",
-  },
-  moodEmoji: {
-    fontSize: 64,
-    marginTop: 20,
-  },
-  moodText: {
-    fontSize: FONT_SIZES.h1,
-    fontWeight: FONT_WEIGHTS.semiBold,
-    color: COLORS.charcoal,
-    marginTop: 12,
-  },
-  journalTitle: {
+  subtitle: {
     fontSize: FONT_SIZES.body,
-    color: COLORS.lightGray,
-    marginTop: 40,
-    marginBottom: 12,
+    color: DARK_COLORS.textSecondary,
+    textAlign: "center",
   },
-  textInput: {
-    backgroundColor: COLORS.white,
-    width: "100%",
-    flex: 1,
+  moodContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 16,
+    marginBottom: 30,
+  },
+  moodButton: {
+    width: 100,
+    height: 100,
+    borderRadius: 20,
+    backgroundColor: DARK_COLORS.surface,
+    borderWidth: 2,
+    borderColor: DARK_COLORS.border,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
+  },
+  moodEmoji: { fontSize: 32, marginBottom: 8 },
+  moodLabel: {
+    fontSize: 12,
+    fontWeight: FONT_WEIGHTS.bold,
+    color: DARK_COLORS.textSecondary,
+    textAlign: "center",
+  },
+  noteContainer: { marginBottom: 20 },
+  label: {
+    fontSize: FONT_SIZES.body,
+    fontWeight: FONT_WEIGHTS.bold,
+    color: DARK_COLORS.text,
+    marginBottom: 10,
+  },
+  input: {
+    backgroundColor: DARK_COLORS.surface,
     borderRadius: 16,
     padding: 16,
-    paddingTop: 16,
+    color: DARK_COLORS.text,
     fontSize: FONT_SIZES.body,
-    lineHeight: 22,
+    height: 120,
     textAlignVertical: "top",
-    borderColor: COLORS.lightGray,
     borderWidth: 1,
+    borderColor: DARK_COLORS.border,
   },
-  buttonContainer: {
-    padding: 20,
-  },
+  footer: { padding: 20, borderTopWidth: 1, borderTopColor: DARK_COLORS.border },
 });
 
 export default MoodJournalScreen;

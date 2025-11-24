@@ -33,8 +33,13 @@ import TermsScreen from "../screens/profile/TermsScreen";
 import HelpScreen from "../screens/profile/HelpScreen";
 import FavoritesScreen from "../screens/profile/FavoritesScreen";
 import JournalScreen from "../screens/profile/JournalScreen";
-import { COLORS } from "../constants/colors";
+import { COLORS, DARK_COLORS } from "../constants/colors";
 import MoodJournalScreen from "../screens/home/MoodJournalScreen";
+import BreathingScreen from "../screens/home/BreathingScreen";
+import MeditationTimerScreen from "../screens/home/MeditationTimerScreen";
+import SoundscapesScreen from "../screens/home/SoundscapesScreen";
+import HealthProfileScreen from "../screens/profile/HealthProfileScreen";
+import PersonalizedPlanScreen from "../screens/home/PersonalizedPlanScreen";
 // Types
 import {
   AuthStackParamList,
@@ -94,10 +99,32 @@ function HomeNavigator() {
         name="MoodJournal"
         component={MoodJournalScreen}
         options={{
-          presentation: "modal", // Hiển thị dưới dạng modal
-          headerShown: true, // Hiển thị header để có nút đóng
+          presentation: "modal",
+          headerShown: true,
           title: "Ghi chú tâm trạng",
+          headerStyle: { backgroundColor: DARK_COLORS.background },
+          headerTintColor: DARK_COLORS.text,
         }}
+      />
+      <HomeStack.Screen
+        name="Breathing"
+        component={BreathingScreen}
+        options={{ headerShown: false }}
+      />
+      <HomeStack.Screen
+        name="MeditationTimer"
+        component={MeditationTimerScreen}
+        options={{ headerShown: false }}
+      />
+      <HomeStack.Screen
+        name="Soundscapes"
+        component={SoundscapesScreen}
+        options={{ headerShown: false }}
+      />
+      <HomeStack.Screen
+        name="PersonalizedPlan"
+        component={PersonalizedPlanScreen}
+        options={{ headerShown: false }}
       />
     </HomeStack.Navigator>
   );
@@ -153,6 +180,11 @@ function ProfileNavigator() {
         name="Journal"
         component={JournalScreen}
         options={{ title: "Nhật ký của tôi" }}
+      />
+      <ProfileStack.Screen
+        name="HealthProfile"
+        component={HealthProfileScreen}
+        options={{ title: "Thông tin sức khỏe" }}
       />
     </ProfileStack.Navigator>
   );

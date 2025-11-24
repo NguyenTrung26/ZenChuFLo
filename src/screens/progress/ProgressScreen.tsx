@@ -7,6 +7,7 @@ import {
   ScrollView,
   Dimensions,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { BarChart } from "react-native-chart-kit";
@@ -121,7 +122,7 @@ const ProgressScreen: React.FC = () => {
           const diffDays = Math.floor(
             (today.setHours(0, 0, 0, 0) -
               new Date(sessionDate).setHours(0, 0, 0, 0)) /
-              (1000 * 3600 * 24)
+            (1000 * 3600 * 24)
           );
           if (diffDays >= 0 && diffDays < 7) {
             const index = 6 - diffDays;
@@ -228,6 +229,14 @@ const ProgressScreen: React.FC = () => {
             />
           </View>
         )}
+
+        <Text style={styles.sectionTitle}>Lịch sử cảm xúc</Text>
+        <View style={styles.moodHistoryContainer}>
+          <Text style={styles.emptyMoodText}>Chưa có dữ liệu cảm xúc tuần này.</Text>
+          <TouchableOpacity style={styles.logMoodButton}>
+            <Text style={styles.logMoodButtonText}>Ghi lại ngay</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -302,5 +311,32 @@ const styles = StyleSheet.create({
   },
   chart: {
     borderRadius: 16,
+  },
+  moodHistoryContainer: {
+    backgroundColor: DARK_COLORS.card,
+    borderRadius: 20,
+    padding: 24,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: DARK_COLORS.border,
+    marginBottom: 20,
+  },
+  emptyMoodText: {
+    fontSize: FONT_SIZES.body,
+    color: DARK_COLORS.textSecondary,
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  logMoodButton: {
+    backgroundColor: DARK_COLORS.card,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: DARK_COLORS.accent,
+  },
+  logMoodButtonText: {
+    color: DARK_COLORS.accent,
+    fontWeight: FONT_WEIGHTS.bold,
   },
 });

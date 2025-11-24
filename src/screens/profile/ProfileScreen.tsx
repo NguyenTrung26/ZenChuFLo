@@ -18,23 +18,9 @@ import { signOut } from "../../services/firebase/auth";
 import { FONT_SIZES, FONT_WEIGHTS } from "../../constants/typography";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { ProfileStackParamList } from "../../navigation/types";
+import { DARK_COLORS, COLORS } from "../../constants/colors";
 
-// --- Bảng màu mới cho Dark Mode ---
-const DARK_COLORS = {
-  background: "#101727", // Xanh đen đậm
-  card: "#1C2536", // Nền card
-  accent: "#3498db", // Xanh dương làm điểm nhấn
-  danger: "#e74c3c", // Màu đỏ cho hành động nguy hiểm
-  textPrimary: "#FFFFFF", // Chữ trắng
-  textSecondary: "#AAB4C3", // Chữ xám nhạt
-  border: "#344054", // Màu viền
-};
-
-interface ExtendedUserProfile {
-  displayName?: string;
-  email?: string;
-  avatar?: string;
-}
+import { UserProfile } from "../../types";
 
 // --- MenuItem Component (cập nhật màu sắc) ---
 const MenuItem = ({
@@ -68,7 +54,7 @@ type Props = NativeStackScreenProps<ProfileStackParamList, "ProfileHome">;
 
 const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   const { profile, clearProfile } = useUserStore();
-  const user = profile as ExtendedUserProfile;
+  const user = profile;
 
   const handleSignOut = async () => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
@@ -93,6 +79,11 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
       icon: "person-outline" as const,
       label: "Chỉnh sửa hồ sơ",
       action: () => navigation.navigate("EditProfile"),
+    },
+    {
+      icon: "fitness-outline" as const,
+      label: "Thông tin sức khỏe",
+      action: () => navigation.navigate("HealthProfile"),
     },
     {
       icon: "notifications-outline" as const,
@@ -160,7 +151,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
           <Ionicons
             name="log-out-outline"
             size={22}
-            color={DARK_COLORS.danger}
+            color={COLORS.red}
           />
           <Text style={styles.logoutText}>Đăng xuất</Text>
         </TouchableOpacity>
@@ -185,7 +176,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: FONT_SIZES.large,
     fontWeight: FONT_WEIGHTS.bold,
-    color: DARK_COLORS.textPrimary,
+    color: DARK_COLORS.text,
   },
   userInfoSection: {
     alignItems: "center",
@@ -202,7 +193,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: FONT_SIZES.h2,
     fontWeight: FONT_WEIGHTS.bold,
-    color: DARK_COLORS.textPrimary,
+    color: DARK_COLORS.text,
   },
   email: {
     fontSize: FONT_SIZES.body,
@@ -210,7 +201,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   menuContainer: {
-    backgroundColor: DARK_COLORS.card,
+    backgroundColor: DARK_COLORS.surface,
     marginHorizontal: 20,
     borderRadius: 16,
     borderWidth: 1,
@@ -236,7 +227,7 @@ const styles = StyleSheet.create({
   menuLabel: {
     marginLeft: 16,
     fontSize: FONT_SIZES.body,
-    color: DARK_COLORS.textPrimary,
+    color: DARK_COLORS.text,
     fontWeight: FONT_WEIGHTS.medium,
   },
   logoutButton: {
@@ -245,7 +236,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 30,
     marginHorizontal: 20,
-    backgroundColor: DARK_COLORS.card,
+    backgroundColor: DARK_COLORS.surface,
     paddingVertical: 14,
     borderRadius: 16,
     borderWidth: 1,
@@ -253,7 +244,7 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   logoutText: {
-    color: DARK_COLORS.danger,
+    color: COLORS.red,
     fontSize: FONT_SIZES.body,
     fontWeight: FONT_WEIGHTS.bold,
     marginLeft: 10,

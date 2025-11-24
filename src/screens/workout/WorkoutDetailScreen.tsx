@@ -13,58 +13,17 @@ import { HomeStackParamList } from "../../navigation/types";
 import { Ionicons } from "@expo/vector-icons";
 import { Workout } from "../../types";
 import { LinearGradient } from "expo-linear-gradient";
-import { COLORS } from "../../constants/colors";
+import { DARK_COLORS, COLORS } from "../../constants/colors";
 import { FONT_SIZES, FONT_WEIGHTS } from "../../constants/typography";
 import Button from "../../components/common/Button";
-import { auth } from "../../services/firebase/config";
-import {
-  isWorkoutFavorited,
-  addFavorite,
-  removeFavorite,
-  addWorkoutIfNotExists,
-} from "../../services/firebase/firestore";
+import { useFavorite } from "../../hooks/useFavorite";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "WorkoutDetail">;
 
 const HEADER_HEIGHT = 300; // Chiều cao của ảnh header
 const WorkoutDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const { workout } = route.params;
-  const [isFavorited, setIsFavorited] = useState(false);
-  const [loadingFavorite, setLoadingFavorite] = useState(true);
-  const user = auth.currentUser;
-
-  // Kiểm tra trạng thái yêu thích khi màn hình tải
-  useEffect(() => {
-    if (!user) return;
-    const checkFavoriteStatus = async () => {
-      setLoadingFavorite(true);
-      const favorited = await isWorkoutFavorited(user.uid, workout.id);
-      setIsFavorited(favorited);
-      setLoadingFavorite(false);
-    };
-    checkFavoriteStatus();
-  }, [user, workout.id]);
-
-  // Hàm xử lý khi nhấn nút trái tim
-  const handleToggleFavorite = async () => {
-    if (!user || loadingFavorite) return;
-    setLoadingFavorite(true);
-
-    if (isFavorited) {
-      await removeFavorite(user.uid, workout.id);
-      setIsFavorited(false);
-    } else {
-      // KHI THÊM MỘT MỤC YÊU THÍCH MỚI
-      // Bước 1: Đảm bảo bài tập này tồn tại trong collection 'workouts'
-      await addWorkoutIfNotExists(workout);
-
-      // Bước 2: Thêm ID của nó vào collection 'favorites'
-      await addFavorite(user.uid, workout.id);
-      setIsFavorited(true);
-    }
-
-    setLoadingFavorite(false);
-  };
+  const { isFavorited, loading: loadingFavorite, toggleFavorite } = useFavorite(workout);
 
   return (
     <SafeAreaView style={styles.container} edges={["bottom", "left", "right"]}>
@@ -98,14 +57,14 @@ const WorkoutDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           <View style={styles.actionsContainer}>
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={handleToggleFavorite}
+              onPress={toggleFavorite}
               disabled={loadingFavorite}
             >
               {/* Thay đổi icon dựa trên state */}
               <Ionicons
                 name={isFavorited ? "heart" : "heart-outline"}
                 size={24}
-                color={isFavorited ? COLORS.red : COLORS.charcoal}
+                color={isFavorited ? COLORS.red : DARK_COLORS.text}
               />
               <Text style={styles.actionText}>Yêu thích</Text>
             </TouchableOpacity>
@@ -114,7 +73,7 @@ const WorkoutDetailScreen: React.FC<Props> = ({ route, navigation }) => {
               <Ionicons
                 name="share-social-outline"
                 size={24}
-                color={COLORS.charcoal}
+                color={DARK_COLORS.text}
               />
               <Text style={styles.actionText}>Chia sẻ</Text>
             </TouchableOpacity>
@@ -144,7 +103,7 @@ const WorkoutDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.creamWhite },
+  container: { flex: 1, backgroundColor: DARK_COLORS.background },
   headerImage: { width: "100%", height: 250, justifyContent: "flex-end" },
   backButton: { position: "absolute", top: 50, left: 20, zIndex: 10 },
   headerGradient: { padding: 20 },
@@ -165,7 +124,7 @@ const styles = StyleSheet.create({
   actionText: {
     marginTop: 5,
     fontSize: FONT_SIZES.body,
-    color: COLORS.charcoal,
+    color: DARK_COLORS.text,
   },
   sectionTitle: {
     fontSize: FONT_SIZES.h2,
@@ -175,7 +134,7 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: FONT_SIZES.body,
-    color: COLORS.charcoal,
+    color: DARK_COLORS.textSecondary,
     lineHeight: 22,
     marginBottom: 5,
   },

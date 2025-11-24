@@ -1,7 +1,9 @@
 // src/store/userStore.ts
 
 import { create } from "zustand";
-import { getUserDocument } from "../services/firebase/firestore";
+import { getUserDocument, createUserDocument } from "../services/firebase/firestore";
+import { auth, db } from "../services/firebase/config";
+import { doc, updateDoc } from "firebase/firestore";
 // Chỉ còn lại MỘT nguồn cho UserProfile
 import { UserProfile } from "../types";
 
@@ -19,15 +21,26 @@ export const useUserStore = create<UserState>((set) => ({
   // Bắt đầu với isLoading = true là đúng, vì khi app mở, chúng ta luôn phải fetch
   isLoading: true,
   fetchProfile: async (uid) => {
-    // Không cần set isLoading ở đây nữa, vì AppRouter đã có màn hình chờ riêng
-    // set({ isLoading: true });
     try {
-      const userDoc = await getUserDocument(uid);
+      let userDoc = await getUserDocument(uid);
+
+      // Auto-sync: Nếu không tìm thấy trong Firestore nhưng có trong Auth
+      if (!userDoc && auth.currentUser && auth.currentUser.uid === uid) {
+        console.log("Profile missing in Firestore, syncing from Auth...");
+        await createUserDocument(auth.currentUser);
+        userDoc = await getUserDocument(uid);
+      }
+
+      // Email sync: Nếu email bị thiếu trong Firestore nhưng có trong Auth
+      if (userDoc && !userDoc.email && auth.currentUser?.email) {
+        console.log("Email missing in Firestore, updating from Auth...");
+        await updateDoc(doc(db, "users", uid), { email: auth.currentUser.email });
+        userDoc.email = auth.currentUser.email;
+      }
+
       if (userDoc) {
-        // Ép kiểu userDoc thành UserProfile để đảm bảo type-safety
         set({ profile: userDoc as UserProfile, isLoading: false });
       } else {
-        // Nếu không tìm thấy document, cũng kết thúc loading
         set({ profile: null, isLoading: false });
       }
     } catch (error) {

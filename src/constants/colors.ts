@@ -39,17 +39,27 @@ const lightColors = {
   textSecondary: "#BDBDBD", // lightGray
   primary: "#9575CD", // deepPurple
   accent: "#FFB74D", // sunsetOrange
-  // ... thêm các màu khác
+};
+
+export const DARK_COLORS = {
+  background: "#0A0E27",
+  surface: "#151932",
+  surfaceLight: "#1E2440",
+  border: "#2A3150",
+  text: "#E8E9F3",
+  textSecondary: "#9BA1C4",
+  accent: "#6C5CE7",
+  accentLight: "#A29BFE",
 };
 
 const darkColors = {
-  background: "#121212", // Màu nền tối tiêu chuẩn
-  card: "#1E1E1E", // Màu thẻ tối
-  text: "#E0E0E0", // Màu text sáng
-  textSecondary: "#757575", // Màu text phụ tối
-  primary: "#BB86FC", // Màu tím sáng hơn cho dark mode
-  accent: "#FFB74D", // Giữ nguyên màu cam
-  // ...
+  background: DARK_COLORS.background,
+  card: DARK_COLORS.surface,
+  text: DARK_COLORS.text,
+  textSecondary: DARK_COLORS.textSecondary,
+  primary: DARK_COLORS.accent,
+  accent: COLORS.sunsetOrange,
 };
+
 export const LIGHT_THEME = lightColors;
 export const DARK_THEME = darkColors;

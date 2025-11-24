@@ -7,23 +7,25 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
-  Image,
   FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
-import { MotiView } from "moti";
+import { Ionicons } from "@expo/vector-icons";
 import { auth } from "../../services/firebase/config";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { HomeStackParamList } from "../../navigation/types";
 import { FONT_SIZES, FONT_WEIGHTS } from "../../constants/typography";
 import { getAllWorkouts } from "../../services/WorkoutService";
 import type { Workout } from "../../types";
+import { useUserStore } from "../../store/userStore";
 
 import WelcomeHeader from "./components/WelcomeHeader";
 import DailyCard from "./components/DailyCard";
 import CategorySection from "./components/CategorySection";
+import DailyQuote from "./components/DailyQuote";
+import WorkoutCard from "./components/WorkoutCard";
+import { DARK_COLORS, COLORS } from "../../constants/colors";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "HomeList">;
 type TabId = "popular" | "latest" | "beginner" | "meditation";
@@ -36,21 +38,6 @@ interface Tab {
 }
 
 const { width } = Dimensions.get("window");
-const HORIZONTAL_PADDING = 20;
-const CARD_GAP = 16;
-const CARD_WIDTH = (width - HORIZONTAL_PADDING * 2 - CARD_GAP) / 2;
-
-// Dark theme colors
-const DARK_COLORS = {
-  background: "#0A0E27",
-  surface: "#151932",
-  surfaceLight: "#1E2440",
-  border: "#2A3150",
-  text: "#E8E9F3",
-  textSecondary: "#9BA1C4",
-  accent: "#6C5CE7",
-  accentLight: "#A29BFE",
-};
 
 const TABS: Tab[] = [
   {
@@ -81,6 +68,7 @@ const TABS: Tab[] = [
 
 const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const user = auth.currentUser;
+  const { profile } = useUserStore();
   const allWorkouts = useMemo(() => getAllWorkouts(), []);
   const [activeTab, setActiveTab] = useState<TabId>("popular");
 
@@ -124,68 +112,14 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
     [navigation]
   );
 
-  const getLevelColor = (level: string): [string, string] => {
-    switch (level) {
-      case "Beginner":
-        return ["#56AB91", "#A8E6CF"];
-      case "Intermediate":
-        return ["#FFB86C", "#FF8C42"];
-      case "Advanced":
-        return ["#FF6B9D", "#C73E6E"];
-      default:
-        return ["#6C5CE7", "#A29BFE"];
-    }
-  };
-
   const renderWorkoutCard = useCallback(
     ({ item, index }: { item: Workout; index: number }) => {
-      const levelGradient = getLevelColor(item.level);
-
       return (
-        <MotiView
-          from={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: "timing", duration: 400, delay: index * 80 }}
-          style={styles.cardWrapper} // ✅ cardWrapper đã thêm
-        >
-          <TouchableOpacity
-            style={styles.workoutCard}
-            activeOpacity={0.85}
-            onPress={() => navigateToWorkout(item)}
-          >
-            <View style={styles.cardImageContainer}>
-              <Image source={item.thumbnailUrl} style={styles.workoutImage} />
-              <LinearGradient
-                colors={
-                  ["transparent", "rgba(10,14,39,0.95)"] as [string, string]
-                }
-                style={styles.workoutImageOverlay}
-              />
-
-              {/* Level Badge */}
-              <LinearGradient
-                colors={levelGradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.levelBadge}
-              >
-                <Text style={styles.levelText}>{item.level}</Text>
-              </LinearGradient>
-
-              {/* Duration Badge */}
-              <BlurView intensity={20} tint="dark" style={styles.durationBadge}>
-                <Text style={styles.durationIcon}>⏱</Text>
-                <Text style={styles.durationText}>{item.durationMinutes}m</Text>
-              </BlurView>
-            </View>
-
-            <View style={styles.workoutInfo}>
-              <Text style={styles.workoutTitle} numberOfLines={2}>
-                {item.title}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </MotiView>
+        <WorkoutCard
+          item={item}
+          index={index}
+          onPress={navigateToWorkout}
+        />
       );
     },
     [navigateToWorkout]
@@ -198,6 +132,56 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
           ListHeaderComponent={
             <>
               <WelcomeHeader name={user?.displayName ?? null} />
+              <View style={styles.quickActionsContainer}>
+                <TouchableOpacity
+                  style={styles.quickActionButton}
+                  onPress={() => navigation.navigate("MoodJournal")}
+                >
+                  <Text style={styles.quickActionEmoji}>✨</Text>
+                  <Text style={styles.quickActionText}>Cảm xúc</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.quickActionButton}
+                  onPress={() => navigation.navigate("Breathing")}
+                >
+                  <Text style={styles.quickActionEmoji}>🌬️</Text>
+                  <Text style={styles.quickActionText}>Hít thở</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.quickActionButton}
+                  onPress={() => navigation.navigate("MeditationTimer")}
+                >
+                  <Text style={styles.quickActionEmoji}>🧘</Text>
+                  <Text style={styles.quickActionText}>Thiền</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.quickActionButton}
+                  onPress={() => navigation.navigate("Soundscapes")}
+                >
+                  <Text style={styles.quickActionEmoji}>🎵</Text>
+                  <Text style={styles.quickActionText}>Âm thanh</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Personalized Plan Banner */}
+              {profile?.healthProfile && (
+                <TouchableOpacity
+                  style={styles.personalizedBanner}
+                  onPress={() => navigation.navigate("PersonalizedPlan")}
+                >
+                  <View style={styles.bannerContent}>
+                    <Ionicons name="sparkles" size={24} color={COLORS.sunsetOrange} />
+                    <View style={styles.bannerText}>
+                      <Text style={styles.bannerTitle}>Lộ trình cho bạn</Text>
+                      <Text style={styles.bannerSubtitle}>Xem kế hoạch tập luyện cá nhân</Text>
+                    </View>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color={DARK_COLORS.textSecondary} />
+                </TouchableOpacity>
+              )}
+
+              <DailyQuote />
               {featuredWorkout && (
                 <View style={styles.featuredSection}>
                   <DailyCard
@@ -300,6 +284,66 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     letterSpacing: 0.3,
   },
+
+  quickActionsContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 20,
+    marginBottom: 16,
+    gap: 12,
+  },
+  quickActionButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: DARK_COLORS.surface,
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: DARK_COLORS.border,
+    gap: 8,
+  },
+  quickActionEmoji: {
+    fontSize: 20,
+  },
+  quickActionText: {
+    fontSize: FONT_SIZES.body,
+    fontWeight: FONT_WEIGHTS.semiBold,
+    color: DARK_COLORS.text,
+  },
+
+  personalizedBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: DARK_COLORS.surface,
+    marginHorizontal: 20,
+    marginBottom: 16,
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: COLORS.sunsetOrange,
+  },
+  bannerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    flex: 1,
+  },
+  bannerText: {
+    flex: 1,
+  },
+  bannerTitle: {
+    fontSize: FONT_SIZES.body,
+    fontWeight: FONT_WEIGHTS.bold,
+    color: DARK_COLORS.text,
+  },
+  bannerSubtitle: {
+    fontSize: FONT_SIZES.small,
+    color: DARK_COLORS.textSecondary,
+    marginTop: 2,
+  },
+
   tabScrollContent: { paddingRight: 20 },
   tabButtonActive: {
     flexDirection: "row",
@@ -338,111 +382,36 @@ const styles = StyleSheet.create({
     color: DARK_COLORS.textSecondary,
   },
 
-  // Card wrapper
-  cardWrapper: { flex: 1, marginBottom: 16 },
-
-  // Workout Cards
   workoutGrid: {
     paddingHorizontal: 20,
-    justifyContent: "space-between",
+    gap: 16,
     marginBottom: 16,
   },
-  workoutCard: {
-    borderRadius: 20,
-    backgroundColor: DARK_COLORS.surface,
-    overflow: "hidden",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  cardImageContainer: {
-    position: "relative",
-    width: "100%",
-    aspectRatio: 0.85,
-  },
-  workoutImage: { width: "100%", height: "100%", resizeMode: "cover" },
-  workoutImageOverlay: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: "70%",
-  },
-  levelBadge: {
-    position: "absolute",
-    top: 10,
-    left: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  levelText: {
-    fontSize: 11,
-    fontWeight: FONT_WEIGHTS.bold,
-    color: "#FFFFFF",
-    letterSpacing: 0.5,
-  },
-  durationBadge: {
-    position: "absolute",
-    bottom: 10,
-    right: 10,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 12,
-    overflow: "hidden",
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
-  },
-  durationIcon: { fontSize: 12, marginRight: 4 },
-  durationText: {
-    fontSize: 12,
-    fontWeight: FONT_WEIGHTS.bold,
-    color: "#FFFFFF",
-  },
-  workoutInfo: { padding: 12, backgroundColor: DARK_COLORS.surface },
-  workoutTitle: {
-    fontSize: 14,
-    fontWeight: FONT_WEIGHTS.bold,
-    color: DARK_COLORS.text,
-    lineHeight: 20,
-  },
 
-  // Empty State
   emptyState: {
-    paddingVertical: 60,
-    paddingHorizontal: 20,
+    flex: 1,
     alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 60,
+    paddingHorizontal: 40,
   },
   emptyStateContainer: {
-    paddingVertical: 48,
-    paddingHorizontal: 32,
+    padding: 32,
     borderRadius: 24,
     alignItems: "center",
     width: "100%",
-    borderWidth: 1,
-    borderColor: DARK_COLORS.border,
   },
-  emptyStateEmoji: { fontSize: 64, marginBottom: 16 },
+  emptyStateEmoji: { fontSize: 48, marginBottom: 12 },
   emptyStateText: {
     fontSize: FONT_SIZES.h3,
     fontWeight: FONT_WEIGHTS.bold,
     color: DARK_COLORS.text,
     marginBottom: 8,
-    textAlign: "center",
   },
   emptyStateSubtext: {
     fontSize: FONT_SIZES.body,
     color: DARK_COLORS.textSecondary,
     textAlign: "center",
-    lineHeight: 20,
   },
 });
 

@@ -38,6 +38,7 @@ export interface UserProfile {
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
+  avatar?: string; // Thêm avatar để đồng bộ với code sử dụng
   onboarding: {
     completed: boolean;
     goal?: string;
@@ -49,4 +50,17 @@ export interface UserProfile {
     totalSessions: number;
     currentStreak: number;
   };
+  healthProfile?: HealthProfile; // Optional health profile for AI recommendations
+}
+
+// Health Profile for AI recommendations
+export interface HealthProfile {
+  weight?: number; // kg
+  height?: number; // cm
+  age?: number;
+  gender?: "male" | "female" | "other";
+  eatingHabits?: "healthy" | "normal" | "unhealthy";
+  activityLevel?: "sedentary" | "light" | "moderate" | "active";
+  goal?: "weight_loss" | "muscle_gain" | "flexibility" | "relaxation";
+  updatedAt?: any; // Timestamp
 }

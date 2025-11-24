@@ -87,6 +87,27 @@ export const createUserMood = async (
   }
 };
 // --- HÀM MỚI ---
+export const updateHealthProfile = async (
+  uid: string,
+  healthData: any
+) => {
+  if (!uid) return { success: false, error: "No user ID provided" };
+  try {
+    const userDocRef = doc(db, "users", uid);
+    await updateDoc(userDocRef, {
+      healthProfile: {
+        ...healthData,
+        updatedAt: Timestamp.now(),
+      },
+    });
+    return { success: true, error: null };
+  } catch (error: any) {
+    console.error("Error updating health profile:", error);
+    return { success: false, error: error.message };
+  }
+};
+
+// --- HÀM MỚI ---
 export const updateUserProfile = async (
   uid: string,
   data: { displayName?: string; photoURL?: string }
@@ -172,6 +193,33 @@ export const updateUserStats = async (uid: string, durationMinutes: number) => {
     return { success: false, error: error.message };
   }
 };
+// Tạo document người dùng mới (dùng cho sync hoặc sign up)
+export const createUserDocument = async (user: any) => {
+  if (!user) return;
+  try {
+    const userDocRef = doc(db, "users", user.uid);
+    await setDoc(userDocRef, {
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName || "Người dùng",
+      photoURL: user.photoURL || null,
+      createdAt: Timestamp.now(),
+      onboarding: {
+        completed: false,
+      },
+      stats: {
+        totalMinutes: 0,
+        totalSessions: 0,
+        currentStreak: 0,
+        longestStreak: 0,
+      },
+    });
+    console.log("User document created for:", user.uid);
+  } catch (error) {
+    console.error("Error creating user document:", error);
+  }
+};
+
 // Lấy thông tin người dùng từ Firestore
 export const getUserDocument = async (uid: string) => {
   if (!uid) return null;
