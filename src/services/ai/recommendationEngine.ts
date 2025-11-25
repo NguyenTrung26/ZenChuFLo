@@ -31,9 +31,10 @@ function getBMICategory(bmi: number): string {
 }
 
 // Generate recommendations based on health profile
-export function generateRecommendations(
-    profile: HealthProfile
-): RecommendationResult {
+export async function generateRecommendations(
+    profile: HealthProfile,
+    useAI: boolean = true
+): Promise<RecommendationResult> {
     const { weight = 65, height = 170, age = 25, gender, eatingHabits, activityLevel, goal } = profile;
 
     const bmi = calculateBMI(weight, height);
@@ -70,7 +71,35 @@ export function generateRecommendations(
         recommendedTypes.push("Thiền", "Hít thở");
     }
 
-    // Generate 7-day plan
+    // Try to use AI if enabled
+    if (useAI) {
+        try {
+            const { generateWorkoutPlanWithAI } = await import('./geminiService');
+            const aiPlan = await generateWorkoutPlanWithAI(
+                profile,
+                Math.round(bmi * 10) / 10,
+                bmiCategory,
+                recommendedLevel,
+                recommendedDuration
+            );
+
+            // Use AI-generated plan
+            return {
+                recommendedLevel,
+                recommendedDuration,
+                recommendedTypes,
+                weeklyPlan: aiPlan.weeklyPlan,
+                bmi: Math.round(bmi * 10) / 10,
+                bmiCategory,
+                tips: aiPlan.tips,
+            };
+        } catch (error) {
+            console.warn('Failed to generate AI plan, falling back to rule-based:', error);
+            // Fall through to rule-based generation
+        }
+    }
+
+    // Rule-based generation (fallback or when AI is disabled)
     const weeklyPlan = [
         {
             day: 1,

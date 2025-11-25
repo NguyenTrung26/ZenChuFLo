@@ -37,7 +37,7 @@ const WorkoutDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             style={styles.backButton}
             onPress={() => navigation.goBack()}
           >
-            <Ionicons name="arrow-back" size={28} color={COLORS.white} />
+            <Ionicons name="arrow-back" size={28} color={COLORS.black} />
           </TouchableOpacity>
 
           <LinearGradient

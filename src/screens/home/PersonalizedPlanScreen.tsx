@@ -15,14 +15,113 @@ type Props = NativeStackScreenProps<HomeStackParamList, "PersonalizedPlan">;
 const PersonalizedPlanScreen: React.FC<Props> = ({ navigation }) => {
     const { profile } = useUserStore();
     const [recommendation, setRecommendation] = useState<any>(null);
+    const [expandedDay, setExpandedDay] = useState<number | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (profile?.healthProfile) {
-            const rec = generateRecommendations(profile.healthProfile);
-            setRecommendation(rec);
-        }
+        const loadRecommendations = async () => {
+            if (profile?.healthProfile) {
+                try {
+                    setLoading(true);
+                    setError(null);
+                    const rec = await generateRecommendations(profile.healthProfile, true);
+                    setRecommendation(rec);
+                } catch (err) {
+                    console.error('Error generating recommendations:', err);
+                    setError('Không thể tạo lộ trình. Vui lòng thử lại sau.');
+                    // Try fallback without AI
+                    try {
+                        const rec = await generateRecommendations(profile.healthProfile, false);
+                        setRecommendation(rec);
+                        setError(null);
+                    } catch (fallbackErr) {
+                        console.error('Fallback also failed:', fallbackErr);
+                    }
+                } finally {
+                    setLoading(false);
+                }
+            } else {
+                setLoading(false);
+            }
+        };
+
+        loadRecommendations();
     }, [profile]);
 
+    const toggleDay = (day: number) => {
+        setExpandedDay(expandedDay === day ? null : day);
+    };
+
+    const getDailyTip = (day: number): string => {
+        const tips = [
+            "Bắt đầu ngày mới với năng lượng tích cực!",
+            "Hít thở sâu giúp giảm căng thẳng hiệu quả.",
+            "Kiên trì là chìa khóa để đạt được mục tiêu!",
+            "Hãy lắng nghe cơ thể và nghỉ ngơi khi cần.",
+            "Sự linh hoạt đến từ việc luyện tập đều đặn.",
+            "Cân bằng giữa tập luyện và nghỉ ngơi rất quan trọng.",
+            "Kết thúc tuần với sự thư giãn và phục hồi.",
+        ];
+        return tips[day - 1] || tips[0];
+    };
+
+    // Loading state
+    if (loading) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={styles.header}>
+                    <TouchableOpacity
+                        onPress={() => navigation.goBack()}
+                        style={styles.backButton}
+                    >
+                        <Ionicons name="arrow-back" size={24} color={DARK_COLORS.text} />
+                    </TouchableOpacity>
+                    <Text style={styles.title}>Lộ trình cho bạn</Text>
+                </View>
+                <View style={styles.loadingContainer}>
+                    <MotiView
+                        from={{ rotate: '0deg' }}
+                        animate={{ rotate: '360deg' }}
+                        transition={{ type: 'timing', duration: 1000, loop: true }}
+                    >
+                        <Ionicons name="sync" size={48} color={DARK_COLORS.accent} />
+                    </MotiView>
+                    <Text style={styles.loadingText}>Đang tạo lộ trình cá nhân hóa...</Text>
+                    <Text style={styles.loadingSubtext}>AI đang phân tích thông tin của bạn</Text>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    // Error state
+    if (error && !recommendation) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={styles.header}>
+                    <TouchableOpacity
+                        onPress={() => navigation.goBack()}
+                        style={styles.backButton}
+                    >
+                        <Ionicons name="arrow-back" size={24} color={DARK_COLORS.text} />
+                    </TouchableOpacity>
+                    <Text style={styles.title}>Lộ trình cho bạn</Text>
+                </View>
+                <View style={styles.emptyState}>
+                    <Ionicons name="alert-circle-outline" size={64} color={DARK_COLORS.textSecondary} />
+                    <Text style={styles.emptyText}>{error}</Text>
+                    <TouchableOpacity
+                        style={styles.button}
+                        onPress={() => navigation.goBack()}
+                    >
+                        <Text style={styles.buttonText}>Quay lại</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        );
+    }
+
+    // Empty state (no health profile)
     if (!recommendation) {
         return (
             <SafeAreaView style={styles.container}>
@@ -82,31 +181,129 @@ const PersonalizedPlanScreen: React.FC<Props> = ({ navigation }) => {
                 {/* Weekly Plan */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Lộ trình 7 ngày</Text>
-                    {recommendation.weeklyPlan.map((day: any, index: number) => (
-                        <MotiView
-                            key={day.day}
-                            from={{ opacity: 0, translateX: -20 }}
-                            animate={{ opacity: 1, translateX: 0 }}
-                            transition={{ delay: index * 100 }}
-                        >
-                            <View style={styles.dayCard}>
-                                <View style={styles.dayHeader}>
-                                    <View style={styles.dayBadge}>
-                                        <Text style={styles.dayNumber}>Ngày {day.day}</Text>
-                                    </View>
-                                    <Text style={styles.dayFocus}>{day.focus}</Text>
-                                </View>
-                                <View style={styles.workoutList}>
-                                    {day.workouts.map((workout: string, i: number) => (
-                                        <View key={i} style={styles.workoutItem}>
-                                            <Ionicons name="checkmark-circle-outline" size={16} color={COLORS.sageGreen} />
-                                            <Text style={styles.workoutText}>{workout === "yoga" ? "Yoga" : workout === "meditation" ? "Thiền" : "Hít thở"}</Text>
+                    {recommendation.weeklyPlan.map((day: any, index: number) => {
+                        const isExpanded = expandedDay === day.day;
+
+                        return (
+                            <MotiView
+                                key={day.day}
+                                from={{ opacity: 0, translateX: -20 }}
+                                animate={{ opacity: 1, translateX: 0 }}
+                                transition={{ delay: index * 100 }}
+                            >
+                                <TouchableOpacity
+                                    style={styles.dayCard}
+                                    onPress={() => toggleDay(day.day)}
+                                    activeOpacity={0.7}
+                                >
+                                    <View style={styles.dayHeader}>
+                                        <View style={styles.dayBadge}>
+                                            <Text style={styles.dayNumber}>Ngày {day.day}</Text>
                                         </View>
-                                    ))}
-                                </View>
-                            </View>
-                        </MotiView>
-                    ))}
+                                        <Text style={styles.dayFocus}>{day.focus}</Text>
+                                        <Ionicons
+                                            name={isExpanded ? "chevron-up" : "chevron-down"}
+                                            size={20}
+                                            color={DARK_COLORS.textSecondary}
+                                        />
+                                    </View>
+
+                                    <View style={styles.workoutList}>
+                                        {day.workouts.map((workout: string, i: number) => (
+                                            <View key={i} style={styles.workoutItem}>
+                                                <Ionicons name="checkmark-circle-outline" size={16} color={COLORS.sageGreen} />
+                                                <Text style={styles.workoutText}>
+                                                    {workout === "yoga" ? "Yoga" : workout === "meditation" ? "Thiền" : "Hít thở"}
+                                                </Text>
+                                            </View>
+                                        ))}
+                                    </View>
+
+                                    {/* Expanded Details */}
+                                    {isExpanded && (
+                                        <MotiView
+                                            from={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: 'auto' }}
+                                            exit={{ opacity: 0, height: 0 }}
+                                            transition={{ type: 'timing', duration: 300 }}
+                                        >
+                                            <View style={styles.expandedContent}>
+                                                <View style={styles.divider} />
+
+                                                {/* Duration */}
+                                                <View style={styles.detailRow}>
+                                                    <Ionicons name="time-outline" size={18} color={DARK_COLORS.accent} />
+                                                    <Text style={styles.detailLabel}>Thời lượng:</Text>
+                                                    <Text style={styles.detailValue}>{recommendation.recommendedDuration} phút</Text>
+                                                </View>
+
+                                                {/* Level */}
+                                                <View style={styles.detailRow}>
+                                                    <Ionicons name="barbell-outline" size={18} color={DARK_COLORS.accent} />
+                                                    <Text style={styles.detailLabel}>Cấp độ:</Text>
+                                                    <Text style={styles.detailValue}>{recommendation.recommendedLevel}</Text>
+                                                </View>
+
+                                                {/* Specific Exercises */}
+                                                <View style={styles.exerciseSection}>
+                                                    <Text style={styles.exerciseTitle}>Bài tập cụ thể:</Text>
+                                                    {day.workouts.map((workout: string, i: number) => (
+                                                        <View key={i} style={styles.exerciseCard}>
+                                                            <View style={styles.exerciseHeader}>
+                                                                <Ionicons
+                                                                    name={
+                                                                        workout === "yoga" ? "body-outline" :
+                                                                            workout === "meditation" ? "flower-outline" :
+                                                                                "leaf-outline"
+                                                                    }
+                                                                    size={20}
+                                                                    color={COLORS.sageGreen}
+                                                                />
+                                                                <Text style={styles.exerciseName}>
+                                                                    {workout === "yoga" ? "Yoga Cơ Bản" :
+                                                                        workout === "meditation" ? "Thiền Định" :
+                                                                            "Hít Thở Sâu"}
+                                                                </Text>
+                                                            </View>
+                                                            <Text style={styles.exerciseDesc}>
+                                                                {workout === "yoga"
+                                                                    ? "Các tư thế yoga giúp tăng cường sức mạnh và sự linh hoạt"
+                                                                    : workout === "meditation"
+                                                                        ? "Thiền tĩnh tâm giúp giảm stress và cải thiện sự tập trung"
+                                                                        : "Bài tập hô hấp giúp thư giãn và cân bằng năng lượng"}
+                                                            </Text>
+                                                            <View style={styles.exerciseMeta}>
+                                                                <View style={styles.metaItem}>
+                                                                    <Ionicons name="time" size={14} color={DARK_COLORS.textSecondary} />
+                                                                    <Text style={styles.metaText}>
+                                                                        {workout === "yoga" ? "15-20 phút" : "10-15 phút"}
+                                                                    </Text>
+                                                                </View>
+                                                                <View style={styles.metaItem}>
+                                                                    <Ionicons name="flame" size={14} color={COLORS.sunsetOrange} />
+                                                                    <Text style={styles.metaText}>
+                                                                        {workout === "yoga" ? "~100 kcal" : "~50 kcal"}
+                                                                    </Text>
+                                                                </View>
+                                                            </View>
+                                                        </View>
+                                                    ))}
+                                                </View>
+
+                                                {/* Daily Tips */}
+                                                <View style={styles.dailyTip}>
+                                                    <Ionicons name="bulb" size={16} color={COLORS.sunsetOrange} />
+                                                    <Text style={styles.dailyTipText}>
+                                                        {getDailyTip(day.day)}
+                                                    </Text>
+                                                </View>
+                                            </View>
+                                        </MotiView>
+                                    )}
+                                </TouchableOpacity>
+                            </MotiView>
+                        );
+                    })}
                 </View>
 
                 {/* Tips */}
@@ -243,6 +440,115 @@ const styles = StyleSheet.create({
         fontSize: FONT_SIZES.body,
         color: DARK_COLORS.text,
         lineHeight: 22,
+    },
+    expandedContent: {
+        marginTop: 12,
+        paddingTop: 12,
+    },
+    divider: {
+        height: 1,
+        backgroundColor: DARK_COLORS.border,
+        marginBottom: 12,
+    },
+    detailRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8,
+        marginBottom: 8,
+    },
+    detailLabel: {
+        fontSize: FONT_SIZES.small,
+        color: DARK_COLORS.textSecondary,
+        marginLeft: 4,
+    },
+    detailValue: {
+        fontSize: FONT_SIZES.small,
+        color: DARK_COLORS.text,
+        fontWeight: FONT_WEIGHTS.semiBold,
+    },
+    exerciseSection: {
+        marginTop: 12,
+    },
+    exerciseTitle: {
+        fontSize: FONT_SIZES.body,
+        fontWeight: FONT_WEIGHTS.semiBold,
+        color: DARK_COLORS.text,
+        marginBottom: 8,
+    },
+    exerciseCard: {
+        backgroundColor: DARK_COLORS.background,
+        borderRadius: 12,
+        padding: 12,
+        marginBottom: 8,
+        borderWidth: 1,
+        borderColor: DARK_COLORS.border,
+    },
+    exerciseHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8,
+        marginBottom: 6,
+    },
+    exerciseName: {
+        fontSize: FONT_SIZES.body,
+        fontWeight: FONT_WEIGHTS.semiBold,
+        color: DARK_COLORS.text,
+    },
+    exerciseDesc: {
+        fontSize: FONT_SIZES.small,
+        color: DARK_COLORS.textSecondary,
+        lineHeight: 18,
+        marginBottom: 8,
+    },
+    exerciseMeta: {
+        flexDirection: "row",
+        gap: 16,
+    },
+    metaItem: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 4,
+    },
+    metaText: {
+        fontSize: FONT_SIZES.small,
+        color: DARK_COLORS.textSecondary,
+    },
+    dailyTip: {
+        flexDirection: "row",
+        alignItems: "flex-start",
+        gap: 8,
+        backgroundColor: DARK_COLORS.background,
+        borderRadius: 8,
+        padding: 10,
+        marginTop: 8,
+        borderLeftWidth: 3,
+        borderLeftColor: COLORS.sunsetOrange,
+    },
+    dailyTipText: {
+        flex: 1,
+        fontSize: FONT_SIZES.small,
+        color: DARK_COLORS.textSecondary,
+        lineHeight: 18,
+        fontStyle: "italic",
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 40,
+    },
+    loadingText: {
+        fontSize: FONT_SIZES.h3,
+        fontWeight: FONT_WEIGHTS.semiBold,
+        color: DARK_COLORS.text,
+        marginTop: 24,
+        textAlign: "center",
+    },
+    loadingSubtext: {
+        fontSize: FONT_SIZES.body,
+        color: DARK_COLORS.textSecondary,
+        marginTop: 8,
+        textAlign: "center",
     },
     emptyState: {
         flex: 1,
