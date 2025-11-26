@@ -208,16 +208,22 @@ const PersonalizedPlanScreen: React.FC<Props> = ({ navigation }) => {
                                         />
                                     </View>
 
-                                    <View style={styles.workoutList}>
-                                        {day.workouts.map((workout: string, i: number) => (
-                                            <View key={i} style={styles.workoutItem}>
-                                                <Ionicons name="checkmark-circle-outline" size={16} color={COLORS.sageGreen} />
-                                                <Text style={styles.workoutText}>
-                                                    {workout === "yoga" ? "Yoga" : workout === "meditation" ? "Thiền" : "Hít thở"}
-                                                </Text>
-                                            </View>
-                                        ))}
-                                    </View>
+                                    {/* Preview List (Collapsed) */}
+                                    {!isExpanded && (
+                                        <View style={styles.workoutList}>
+                                            {day.exercises && day.exercises.slice(0, 2).map((ex: any, i: number) => (
+                                                <View key={i} style={styles.workoutItem}>
+                                                    <Ionicons name="checkmark-circle-outline" size={16} color={COLORS.sageGreen} />
+                                                    <Text style={styles.workoutText} numberOfLines={1}>
+                                                        {ex.name}
+                                                    </Text>
+                                                </View>
+                                            ))}
+                                            {day.exercises && day.exercises.length > 2 && (
+                                                <Text style={styles.moreText}>+ {day.exercises.length - 2} bài tập khác</Text>
+                                            )}
+                                        </View>
+                                    )}
 
                                     {/* Expanded Details */}
                                     {isExpanded && (
@@ -230,62 +236,61 @@ const PersonalizedPlanScreen: React.FC<Props> = ({ navigation }) => {
                                             <View style={styles.expandedContent}>
                                                 <View style={styles.divider} />
 
-                                                {/* Duration */}
-                                                <View style={styles.detailRow}>
-                                                    <Ionicons name="time-outline" size={18} color={DARK_COLORS.accent} />
-                                                    <Text style={styles.detailLabel}>Thời lượng:</Text>
-                                                    <Text style={styles.detailValue}>{recommendation.recommendedDuration} phút</Text>
-                                                </View>
+                                                {/* Day Details */}
+                                                {day.details && (
+                                                    <Text style={styles.dayDetailsText}>{day.details}</Text>
+                                                )}
 
-                                                {/* Level */}
-                                                <View style={styles.detailRow}>
-                                                    <Ionicons name="barbell-outline" size={18} color={DARK_COLORS.accent} />
-                                                    <Text style={styles.detailLabel}>Cấp độ:</Text>
-                                                    <Text style={styles.detailValue}>{recommendation.recommendedLevel}</Text>
-                                                </View>
-
-                                                {/* Specific Exercises */}
+                                                {/* Exercises List */}
                                                 <View style={styles.exerciseSection}>
-                                                    <Text style={styles.exerciseTitle}>Bài tập cụ thể:</Text>
-                                                    {day.workouts.map((workout: string, i: number) => (
+                                                    <Text style={styles.exerciseTitle}>Bài tập chi tiết:</Text>
+                                                    {day.exercises && day.exercises.map((ex: any, i: number) => (
                                                         <View key={i} style={styles.exerciseCard}>
                                                             <View style={styles.exerciseHeader}>
                                                                 <Ionicons
                                                                     name={
-                                                                        workout === "yoga" ? "body-outline" :
-                                                                            workout === "meditation" ? "flower-outline" :
+                                                                        ex.type === "yoga" ? "body-outline" :
+                                                                            ex.type === "meditation" ? "flower-outline" :
                                                                                 "leaf-outline"
                                                                     }
                                                                     size={20}
                                                                     color={COLORS.sageGreen}
                                                                 />
-                                                                <Text style={styles.exerciseName}>
-                                                                    {workout === "yoga" ? "Yoga Cơ Bản" :
-                                                                        workout === "meditation" ? "Thiền Định" :
-                                                                            "Hít Thở Sâu"}
-                                                                </Text>
+                                                                <Text style={styles.exerciseName}>{ex.name}</Text>
                                                             </View>
-                                                            <Text style={styles.exerciseDesc}>
-                                                                {workout === "yoga"
-                                                                    ? "Các tư thế yoga giúp tăng cường sức mạnh và sự linh hoạt"
-                                                                    : workout === "meditation"
-                                                                        ? "Thiền tĩnh tâm giúp giảm stress và cải thiện sự tập trung"
-                                                                        : "Bài tập hô hấp giúp thư giãn và cân bằng năng lượng"}
-                                                            </Text>
+
                                                             <View style={styles.exerciseMeta}>
                                                                 <View style={styles.metaItem}>
                                                                     <Ionicons name="time" size={14} color={DARK_COLORS.textSecondary} />
-                                                                    <Text style={styles.metaText}>
-                                                                        {workout === "yoga" ? "15-20 phút" : "10-15 phút"}
-                                                                    </Text>
+                                                                    <Text style={styles.metaText}>{ex.duration}</Text>
                                                                 </View>
-                                                                <View style={styles.metaItem}>
-                                                                    <Ionicons name="flame" size={14} color={COLORS.sunsetOrange} />
-                                                                    <Text style={styles.metaText}>
-                                                                        {workout === "yoga" ? "~100 kcal" : "~50 kcal"}
-                                                                    </Text>
-                                                                </View>
+                                                                {ex.calories && (
+                                                                    <View style={styles.metaItem}>
+                                                                        <Ionicons name="flame" size={14} color={COLORS.sunsetOrange} />
+                                                                        <Text style={styles.metaText}>{ex.calories}</Text>
+                                                                    </View>
+                                                                )}
                                                             </View>
+
+                                                            {ex.benefits && (
+                                                                <Text style={styles.exerciseBenefits}>
+                                                                    <Text style={{ fontWeight: 'bold' }}>Lợi ích: </Text>
+                                                                    {ex.benefits}
+                                                                </Text>
+                                                            )}
+
+                                                            {/* Instructions */}
+                                                            {ex.instructions && ex.instructions.length > 0 && (
+                                                                <View style={styles.instructionsContainer}>
+                                                                    <Text style={styles.instructionsTitle}>Hướng dẫn:</Text>
+                                                                    {ex.instructions.map((step: string, stepIndex: number) => (
+                                                                        <View key={stepIndex} style={styles.instructionStep}>
+                                                                            <Text style={styles.stepNumber}>{stepIndex + 1}.</Text>
+                                                                            <Text style={styles.stepText}>{step}</Text>
+                                                                        </View>
+                                                                    ))}
+                                                                </View>
+                                                            )}
                                                         </View>
                                                     ))}
                                                 </View>
@@ -572,6 +577,52 @@ const styles = StyleSheet.create({
         color: COLORS.white,
         fontSize: FONT_SIZES.body,
         fontWeight: FONT_WEIGHTS.bold,
+    },
+    moreText: {
+        fontSize: FONT_SIZES.small,
+        color: DARK_COLORS.textSecondary,
+        fontStyle: 'italic',
+        marginLeft: 24,
+    },
+    dayDetailsText: {
+        fontSize: FONT_SIZES.body,
+        color: DARK_COLORS.text,
+        marginBottom: 16,
+        lineHeight: 22,
+    },
+    exerciseBenefits: {
+        fontSize: FONT_SIZES.small,
+        color: COLORS.sageGreen,
+        marginTop: 8,
+        fontStyle: 'italic',
+    },
+    instructionsContainer: {
+        marginTop: 12,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        padding: 12,
+        borderRadius: 8,
+    },
+    instructionsTitle: {
+        fontSize: FONT_SIZES.small,
+        fontWeight: FONT_WEIGHTS.bold,
+        color: DARK_COLORS.text,
+        marginBottom: 8,
+    },
+    instructionStep: {
+        flexDirection: 'row',
+        marginBottom: 6,
+    },
+    stepNumber: {
+        fontSize: FONT_SIZES.small,
+        fontWeight: FONT_WEIGHTS.bold,
+        color: DARK_COLORS.accent,
+        width: 20,
+    },
+    stepText: {
+        flex: 1,
+        fontSize: FONT_SIZES.small,
+        color: DARK_COLORS.textSecondary,
+        lineHeight: 20,
     },
 });
 

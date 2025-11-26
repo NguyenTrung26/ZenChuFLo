@@ -14,10 +14,19 @@ if (!API_KEY) {
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
+export interface Exercise {
+    name: string;
+    type: 'yoga' | 'meditation' | 'breathing';
+    duration: string;
+    calories?: string;
+    instructions: string[];
+    benefits: string;
+}
+
 interface GeminiWorkoutPlan {
     weeklyPlan: {
         day: number;
-        workouts: string[];
+        exercises: Exercise[];
         focus: string;
         details?: string;
     }[];
@@ -52,35 +61,44 @@ Bạn là chuyên gia huấn luyện Yoga và Thiền định. Hãy tạo một 
 - Thời lượng đề xuất: ${recommendedDuration} phút/ngày
 
 **Yêu cầu:**
-1. Tạo lộ trình 7 ngày với các bài tập phù hợp (yoga, meditation, breathing)
-2. Mỗi ngày có focus (chủ đề) rõ ràng
-3. Cung cấp 4-5 lời khuyên thiết thực
+1. Tạo lộ trình 7 ngày với các bài tập cụ thể (yoga, meditation, breathing).
+2. Mỗi ngày có focus (chủ đề) rõ ràng.
+3. Cung cấp hướng dẫn chi tiết từng bước cho mỗi bài tập.
 
 **Format trả về (JSON):**
 {
   "weeklyPlan": [
     {
       "day": 1,
-      "workouts": ["yoga"],
       "focus": "Khởi động nhẹ nhàng",
-      "details": "Mô tả chi tiết về bài tập ngày 1"
+      "details": "Mô tả tổng quan ngày tập",
+      "exercises": [
+        {
+          "name": "Tên bài tập (VD: Chào mặt trời A)",
+          "type": "yoga", // hoặc "meditation", "breathing"
+          "duration": "10 phút",
+          "calories": "50 kcal",
+          "instructions": [
+            "Bước 1: Đứng thẳng...",
+            "Bước 2: Hít vào...",
+            "Bước 3: Thở ra..."
+          ],
+          "benefits": "Lợi ích của bài tập này"
+        }
+      ]
     },
     ...
   ],
   "tips": [
     "Lời khuyên 1",
-    "Lời khuyên 2",
     ...
   ]
 }
 
-Lưu ý: 
-- workouts chỉ được chứa: "yoga", "meditation", "breathing"
-- focus phải ngắn gọn (< 30 ký tự)
-- details mô tả chi tiết hơn về bài tập trong ngày
-- tips phải cụ thể và hữu ích cho người dùng
-
-Chỉ trả về JSON, không thêm text khác.
+Lưu ý:
+- "type" chỉ được là: "yoga", "meditation", "breathing"
+- "instructions" phải chi tiết, dễ hiểu, từng bước một.
+- Chỉ trả về JSON hợp lệ, không thêm text khác.
 `;
 
         const result = await model.generateContent(prompt);
