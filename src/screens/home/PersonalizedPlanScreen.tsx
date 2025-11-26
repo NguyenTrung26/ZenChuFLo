@@ -10,6 +10,17 @@ import { useUserStore } from "../../store/userStore";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { HomeStackParamList } from "../../navigation/types";
 
+import { auth } from "../../services/firebase/config";
+import {
+    addWorkoutIfNotExists,
+    addFavorite,
+    removeFavorite,
+    isWorkoutFavorited,
+    getFavoriteWorkoutIds,
+    getFavoriteWorkouts
+} from "../../services/firebase/firestore";
+import { Workout } from "../../types";
+
 type Props = NativeStackScreenProps<HomeStackParamList, "PersonalizedPlan">;
 
 const PersonalizedPlanScreen: React.FC<Props> = ({ navigation }) => {
@@ -18,6 +29,55 @@ const PersonalizedPlanScreen: React.FC<Props> = ({ navigation }) => {
     const [expandedDay, setExpandedDay] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+
+    // Load favorites on mount
+    // Load favorites on mount
+    useEffect(() => {
+        const loadFavorites = async () => {
+            if (auth.currentUser) {
+                const workouts = await getFavoriteWorkouts(auth.currentUser.uid);
+                setFavoriteIds(new Set(workouts.map(w => w.id)));
+            }
+        };
+        loadFavorites();
+    }, []);
+
+    const handleToggleFavorite = async (exercise: any, dayIndex: number, exIndex: number) => {
+        if (!auth.currentUser) return;
+
+        // Generate a consistent ID for this AI exercise
+        const exerciseId = `ai_${exercise.type}_${exercise.name.replace(/\s+/g, '_').toLowerCase()}`;
+
+        const isFavorited = favoriteIds.has(exerciseId);
+        const newFavorites = new Set(favoriteIds);
+
+        try {
+            if (isFavorited) {
+                await removeFavorite(auth.currentUser.uid, exerciseId);
+                newFavorites.delete(exerciseId);
+            } else {
+                // Convert AI exercise to Workout format
+                const workoutData: Workout = {
+                    id: exerciseId,
+                    title: exercise.name,
+                    description: exercise.instructions ? exercise.instructions.join('\n') : exercise.benefits || '',
+                    type: exercise.type === 'yoga' ? 'Yoga' : exercise.type === 'meditation' ? 'Thiền' : 'Hít thở',
+                    durationMinutes: parseInt(exercise.duration) || 15,
+                    level: recommendation?.recommendedLevel || 'Beginner',
+                    thumbnailUrl: { uri: 'https://images.unsplash.com/photo-1544367563-12123d8965cd?q=80&w=2070&auto=format&fit=crop' },
+                    rating: 5,
+                    reviewCount: 0
+                };
+
+                await addFavorite(auth.currentUser.uid, workoutData);
+                newFavorites.add(exerciseId);
+            }
+            setFavoriteIds(newFavorites);
+        } catch (error) {
+            console.error("Error toggling favorite:", error);
+        }
+    };
 
     useEffect(() => {
         const loadRecommendations = async () => {
@@ -244,55 +304,72 @@ const PersonalizedPlanScreen: React.FC<Props> = ({ navigation }) => {
                                                 {/* Exercises List */}
                                                 <View style={styles.exerciseSection}>
                                                     <Text style={styles.exerciseTitle}>Bài tập chi tiết:</Text>
-                                                    {day.exercises && day.exercises.map((ex: any, i: number) => (
-                                                        <View key={i} style={styles.exerciseCard}>
-                                                            <View style={styles.exerciseHeader}>
-                                                                <Ionicons
-                                                                    name={
-                                                                        ex.type === "yoga" ? "body-outline" :
-                                                                            ex.type === "meditation" ? "flower-outline" :
-                                                                                "leaf-outline"
-                                                                    }
-                                                                    size={20}
-                                                                    color={COLORS.sageGreen}
-                                                                />
-                                                                <Text style={styles.exerciseName}>{ex.name}</Text>
-                                                            </View>
+                                                    {day.exercises && day.exercises.map((ex: any, i: number) => {
+                                                        const exerciseId = `ai_${ex.type}_${ex.name.replace(/\s+/g, '_').toLowerCase()}`;
+                                                        const isFavorited = favoriteIds.has(exerciseId);
 
-                                                            <View style={styles.exerciseMeta}>
-                                                                <View style={styles.metaItem}>
-                                                                    <Ionicons name="time" size={14} color={DARK_COLORS.textSecondary} />
-                                                                    <Text style={styles.metaText}>{ex.duration}</Text>
+                                                        return (
+                                                            <View key={i} style={styles.exerciseCard}>
+                                                                <View style={styles.exerciseHeader}>
+                                                                    <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 8 }}>
+                                                                        <Ionicons
+                                                                            name={
+                                                                                ex.type === "yoga" ? "body-outline" :
+                                                                                    ex.type === "meditation" ? "flower-outline" :
+                                                                                        "leaf-outline"
+                                                                            }
+                                                                            size={20}
+                                                                            color={COLORS.sageGreen}
+                                                                        />
+                                                                        <Text style={styles.exerciseName}>{ex.name}</Text>
+                                                                    </View>
+                                                                    <TouchableOpacity
+                                                                        onPress={() => handleToggleFavorite(ex, day.day, i)}
+                                                                        style={{ padding: 4 }}
+                                                                    >
+                                                                        <Ionicons
+                                                                            name={isFavorited ? "heart" : "heart-outline"}
+                                                                            size={22}
+                                                                            color={isFavorited ? COLORS.sunsetOrange : DARK_COLORS.textSecondary}
+                                                                        />
+                                                                    </TouchableOpacity>
                                                                 </View>
-                                                                {ex.calories && (
+
+                                                                <View style={styles.exerciseMeta}>
                                                                     <View style={styles.metaItem}>
-                                                                        <Ionicons name="flame" size={14} color={COLORS.sunsetOrange} />
-                                                                        <Text style={styles.metaText}>{ex.calories}</Text>
+                                                                        <Ionicons name="time" size={14} color={DARK_COLORS.textSecondary} />
+                                                                        <Text style={styles.metaText}>{ex.duration}</Text>
+                                                                    </View>
+                                                                    {ex.calories && (
+                                                                        <View style={styles.metaItem}>
+                                                                            <Ionicons name="flame" size={14} color={COLORS.sunsetOrange} />
+                                                                            <Text style={styles.metaText}>{ex.calories}</Text>
+                                                                        </View>
+                                                                    )}
+                                                                </View>
+
+                                                                {ex.benefits && (
+                                                                    <Text style={styles.exerciseBenefits}>
+                                                                        <Text style={{ fontWeight: 'bold' }}>Lợi ích: </Text>
+                                                                        {ex.benefits}
+                                                                    </Text>
+                                                                )}
+
+                                                                {/* Instructions */}
+                                                                {ex.instructions && ex.instructions.length > 0 && (
+                                                                    <View style={styles.instructionsContainer}>
+                                                                        <Text style={styles.instructionsTitle}>Hướng dẫn:</Text>
+                                                                        {ex.instructions.map((step: string, stepIndex: number) => (
+                                                                            <View key={stepIndex} style={styles.instructionStep}>
+                                                                                <Text style={styles.stepNumber}>{stepIndex + 1}.</Text>
+                                                                                <Text style={styles.stepText}>{step}</Text>
+                                                                            </View>
+                                                                        ))}
                                                                     </View>
                                                                 )}
                                                             </View>
-
-                                                            {ex.benefits && (
-                                                                <Text style={styles.exerciseBenefits}>
-                                                                    <Text style={{ fontWeight: 'bold' }}>Lợi ích: </Text>
-                                                                    {ex.benefits}
-                                                                </Text>
-                                                            )}
-
-                                                            {/* Instructions */}
-                                                            {ex.instructions && ex.instructions.length > 0 && (
-                                                                <View style={styles.instructionsContainer}>
-                                                                    <Text style={styles.instructionsTitle}>Hướng dẫn:</Text>
-                                                                    {ex.instructions.map((step: string, stepIndex: number) => (
-                                                                        <View key={stepIndex} style={styles.instructionStep}>
-                                                                            <Text style={styles.stepNumber}>{stepIndex + 1}.</Text>
-                                                                            <Text style={styles.stepText}>{step}</Text>
-                                                                        </View>
-                                                                    ))}
-                                                                </View>
-                                                            )}
-                                                        </View>
-                                                    ))}
+                                                        )
+                                                    })}
                                                 </View>
 
                                                 {/* Daily Tips */}

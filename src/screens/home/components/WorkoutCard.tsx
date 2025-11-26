@@ -12,6 +12,7 @@ import { BlurView } from "expo-blur";
 import { MotiView } from "moti";
 import { DARK_COLORS } from "../../../constants/colors";
 import { FONT_SIZES, FONT_WEIGHTS } from "../../../constants/typography";
+import { Ionicons } from "@expo/vector-icons";
 import type { Workout } from "../../../types";
 
 const { width } = Dimensions.get("window");
@@ -25,9 +26,11 @@ interface WorkoutCardProps {
     item: Workout;
     index: number;
     onPress: (workout: Workout) => void;
+    isFavorited?: boolean;
+    onToggleFavorite?: () => void;
 }
 
-const WorkoutCard: React.FC<WorkoutCardProps> = ({ item, index, onPress }) => {
+const WorkoutCard: React.FC<WorkoutCardProps> = ({ item, index, onPress, isFavorited, onToggleFavorite }) => {
     const levelGradient = useMemo(() => {
         switch (item.level) {
             case "Beginner":
@@ -69,6 +72,23 @@ const WorkoutCard: React.FC<WorkoutCardProps> = ({ item, index, onPress }) => {
                     >
                         <Text style={styles.levelText}>{item.level}</Text>
                     </LinearGradient>
+
+                    {/* Favorite Button */}
+                    {onToggleFavorite && (
+                        <TouchableOpacity
+                            style={styles.favoriteButton}
+                            onPress={(e) => {
+                                e.stopPropagation();
+                                onToggleFavorite();
+                            }}
+                        >
+                            <Ionicons
+                                name={isFavorited ? "heart" : "heart-outline"}
+                                size={20}
+                                color={isFavorited ? "#FF6B6B" : "#FFFFFF"}
+                            />
+                        </TouchableOpacity>
+                    )}
 
                     {/* Duration Badge */}
                     <BlurView intensity={20} tint="dark" style={styles.durationBadge}>
@@ -155,6 +175,16 @@ const styles = StyleSheet.create({
         fontWeight: FONT_WEIGHTS.bold,
         color: DARK_COLORS.text,
         lineHeight: 20,
+    },
+    favoriteButton: {
+        position: "absolute",
+        top: 10,
+        right: 10,
+        padding: 8,
+        borderRadius: 20,
+        backgroundColor: "rgba(0,0,0,0.3)",
+        justifyContent: "center",
+        alignItems: "center",
     },
 });
 

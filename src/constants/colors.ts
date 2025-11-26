@@ -45,6 +45,7 @@ export const DARK_COLORS = {
   background: "#0A0E27",
   surface: "#151932",
   surfaceLight: "#1E2440",
+  card: "#1C2536",
   border: "#2A3150",
   text: "#E8E9F3",
   textSecondary: "#9BA1C4",

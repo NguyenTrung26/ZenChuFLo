@@ -10,7 +10,7 @@ export type MainTabParamList = {
   Home: undefined;
   Workout: undefined;
   Meditation: undefined;
-  Progress: undefined;
+  ProgressTab: undefined;
   Profile: undefined;
 };
 
@@ -42,4 +42,5 @@ export type ProfileStackParamList = {
   Favorites: undefined;
   Journal: undefined;
   HealthProfile: undefined;
+  Progress: undefined;
 };

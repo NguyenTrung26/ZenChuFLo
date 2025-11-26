@@ -11,8 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 
 import {
-  getFavoriteWorkoutIds,
-  getWorkoutsByIds,
+  getFavoriteWorkouts,
 } from "../../services/firebase/firestore";
 import { auth } from "../../services/firebase/config";
 import { Workout } from "../../types";
@@ -44,16 +43,15 @@ const FavoritesScreen = () => {
 
       const fetchFavorites = async () => {
         setIsLoading(true);
-        const favoriteIds = await getFavoriteWorkoutIds(user.uid);
-
-        if (favoriteIds.length > 0) {
-          const workouts = await getWorkoutsByIds(favoriteIds);
+        try {
+          const workouts = await getFavoriteWorkouts(user.uid);
           setFavoriteWorkouts(workouts);
-        } else {
+        } catch (error) {
+          console.error("Error fetching favorites:", error);
           setFavoriteWorkouts([]);
+        } finally {
+          setIsLoading(false);
         }
-
-        setIsLoading(false);
       };
 
       fetchFavorites();

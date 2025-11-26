@@ -25,7 +25,7 @@ import HomeScreen from "../screens/home/HomeScreen";
 import WorkoutDetailScreen from "../screens/workout/WorkoutDetailScreen";
 import WorkoutPlayerScreen from "../screens/workout/WorkoutPlayerScreen";
 import CompletionScreen from "../screens/workout/CompletionScreen";
-import ProgressScreen from "../screens/progress/ProgressScreen";
+import ProgressStatsScreen from "../screens/profile/ProgressScreen";
 import ProfileScreen from "../screens/profile/ProfileScreen";
 import EditProfileScreen from "../screens/profile/EditProfileScreen";
 import RemindersScreen from "../screens/profile/RemindersScreen";
@@ -186,6 +186,11 @@ function ProfileNavigator() {
         component={HealthProfileScreen}
         options={{ title: "Thông tin sức khỏe" }}
       />
+      <ProfileStack.Screen
+        name="Progress"
+        component={ProgressStatsScreen}
+        options={{ headerShown: false }}
+      />
     </ProfileStack.Navigator>
   );
 }
@@ -214,8 +219,8 @@ function MainNavigator() {
         }}
       />
       <Tab.Screen
-        name="Progress"
-        component={ProgressScreen}
+        name="ProgressTab"
+        component={ProgressStatsScreen}
         options={{
           title: "Tiến trình",
           headerShown: false,

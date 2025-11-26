@@ -12,7 +12,13 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 import { auth } from "../../services/firebase/config";
+import {
+  addFavorite,
+  removeFavorite,
+  getFavoriteWorkouts,
+} from "../../services/firebase/firestore";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { HomeStackParamList } from "../../navigation/types";
 import { FONT_SIZES, FONT_WEIGHTS } from "../../constants/typography";
@@ -28,7 +34,7 @@ import WorkoutCard from "./components/WorkoutCard";
 import { DARK_COLORS, COLORS } from "../../constants/colors";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "HomeList">;
-type TabId = "popular" | "latest" | "beginner" | "meditation";
+type TabId = "all" | "strength" | "flexibility" | "balance" | "relaxation";
 
 interface Tab {
   id: TabId;
@@ -41,27 +47,33 @@ const { width } = Dimensions.get("window");
 
 const TABS: Tab[] = [
   {
-    id: "popular",
-    label: "Phổ biến",
-    emoji: "🔥",
+    id: "all",
+    label: "Tất cả",
+    emoji: "🧘",
+    gradient: ["#667eea", "#764ba2"] as const,
+  },
+  {
+    id: "strength",
+    label: "Sức mạnh",
+    emoji: "💪",
     gradient: ["#FF6B6B", "#EE5A6F"] as const,
   },
   {
-    id: "latest",
-    label: "Mới nhất",
-    emoji: "✨",
+    id: "flexibility",
+    label: "Dẻo dai",
+    emoji: "🤸",
     gradient: ["#4ECDC4", "#44A08D"] as const,
   },
   {
-    id: "beginner",
-    label: "Người mới",
-    emoji: "🌱",
+    id: "balance",
+    label: "Thăng bằng",
+    emoji: "⚖️",
     gradient: ["#A8E6CF", "#56AB91"] as const,
   },
   {
-    id: "meditation",
-    label: "Thiền",
-    emoji: "🧘",
+    id: "relaxation",
+    label: "Thư giãn",
+    emoji: "🌙",
     gradient: ["#B197FC", "#8C7CFF"] as const,
   },
 ];
@@ -70,31 +82,126 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const user = auth.currentUser;
   const { profile } = useUserStore();
   const allWorkouts = useMemo(() => getAllWorkouts(), []);
-  const [activeTab, setActiveTab] = useState<TabId>("popular");
+  const [activeTab, setActiveTab] = useState<TabId>("all");
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+
+  // Load favorites
+  useFocusEffect(
+    useCallback(() => {
+      const loadFavorites = async () => {
+        if (auth.currentUser) {
+          const workouts = await getFavoriteWorkouts(auth.currentUser.uid);
+          setFavoriteIds(new Set(workouts.map((w) => w.id)));
+        }
+      };
+      loadFavorites();
+    }, [])
+  );
+
+  const handleToggleFavorite = async (workout: Workout) => {
+    if (!auth.currentUser) return;
+
+    const isFavorited = favoriteIds.has(workout.id);
+    const newFavorites = new Set(favoriteIds);
+
+    try {
+      if (isFavorited) {
+        await removeFavorite(auth.currentUser.uid, workout.id);
+        newFavorites.delete(workout.id);
+      } else {
+        await addFavorite(auth.currentUser.uid, workout);
+        newFavorites.add(workout.id);
+      }
+      setFavoriteIds(newFavorites);
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+    }
+  };
 
   const featuredWorkout = useMemo(() => allWorkouts[0] ?? null, [allWorkouts]);
 
   const getWorkoutsByTab = useCallback(
     (tabId: TabId): Workout[] => {
       const remaining = allWorkouts.slice(1);
+
       switch (tabId) {
-        case "popular":
-          return remaining.slice(0, 6);
-        case "latest":
-          return remaining.slice(2, 8);
-        case "beginner":
-          return remaining.filter((w) => w.level === "Beginner").slice(0, 6);
-        case "meditation":
-          return remaining
-            .filter((w) => {
-              const title = w.title.toLowerCase();
-              return (
-                title.includes("thiền") ||
-                title.includes("meditation") ||
-                title.includes("relaxation")
-              );
-            })
-            .slice(0, 6);
+        case "all":
+          // Hiển thị tất cả poses
+          return allWorkouts;
+
+        case "strength":
+          // Poses tăng sức mạnh: Plank, Warrior, Chair, Boat, Crow, etc.
+          return remaining.filter((w) => {
+            const title = w.title.toLowerCase();
+            const desc = w.description?.toLowerCase() || "";
+            return (
+              title.includes("warrior") ||
+              title.includes("plank") ||
+              title.includes("chair") ||
+              title.includes("boat") ||
+              title.includes("crow") ||
+              title.includes("eagle") ||
+              title.includes("handstand") ||
+              title.includes("forearm stand") ||
+              desc.includes("strengthen")
+            );
+          });
+
+        case "flexibility":
+          // Poses tăng độ dẻo: Forward Bend, Splits, Bow, Camel, etc.
+          return remaining.filter((w) => {
+            const title = w.title.toLowerCase();
+            const desc = w.description?.toLowerCase() || "";
+            return (
+              title.includes("forward") ||
+              title.includes("split") ||
+              title.includes("bow") ||
+              title.includes("camel") ||
+              title.includes("pigeon") ||
+              title.includes("butterfly") ||
+              title.includes("triangle") ||
+              title.includes("pyramid") ||
+              desc.includes("stretch")
+            );
+          });
+
+        case "balance":
+          // Poses cân bằng: Tree, Half-Moon, Eagle, Warrior III, etc.
+          return remaining.filter((w) => {
+            const title = w.title.toLowerCase();
+            const desc = w.description?.toLowerCase() || "";
+            return (
+              title.includes("tree") ||
+              title.includes("half-moon") ||
+              title.includes("half moon") ||
+              title.includes("eagle") ||
+              title.includes("warrior three") ||
+              title.includes("warrior iii") ||
+              title.includes("extended hand") ||
+              title.includes("side plank") ||
+              desc.includes("balance")
+            );
+          });
+
+        case "relaxation":
+          // Poses thư giãn: Child's Pose, Corpse, Sphinx, Seated Forward Bend, etc.
+          return remaining.filter((w) => {
+            const title = w.title.toLowerCase();
+            const desc = w.description?.toLowerCase() || "";
+            return (
+              title.includes("child") ||
+              title.includes("corpse") ||
+              title.includes("sphinx") ||
+              title.includes("seated forward") ||
+              title.includes("plow") ||
+              title.includes("shoulder stand") ||
+              title.includes("lotus") ||
+              desc.includes("calm") ||
+              desc.includes("relax") ||
+              desc.includes("relieve stress")
+            );
+          });
+
         default:
           return remaining;
       }
@@ -119,10 +226,12 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
           item={item}
           index={index}
           onPress={navigateToWorkout}
+          isFavorited={favoriteIds.has(item.id)}
+          onToggleFavorite={() => handleToggleFavorite(item)}
         />
       );
     },
-    [navigateToWorkout]
+    [navigateToWorkout, favoriteIds]
   );
 
   return (

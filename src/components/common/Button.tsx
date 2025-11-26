@@ -29,6 +29,7 @@ interface ButtonProps {
   style?: ViewStyle;
   textStyle?: TextStyle;
   haptic?: HapticType;
+  icon?: React.ReactNode;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -42,6 +43,7 @@ const Button: React.FC<ButtonProps> = ({
   gradient = false,
   style,
   textStyle,
+  icon,
 }) => {
   // --- TẠO MỘT HÀM XỬ LÝ ONPRESS MỚI ---
   const handlePress = () => {
@@ -50,15 +52,15 @@ const Button: React.FC<ButtonProps> = ({
       if (["light", "medium", "heavy"].includes(haptic)) {
         Haptics.impactAsync(
           Haptics.ImpactFeedbackStyle[
-            (haptic.charAt(0).toUpperCase() +
-              haptic.slice(1)) as keyof typeof Haptics.ImpactFeedbackStyle
+          (haptic.charAt(0).toUpperCase() +
+            haptic.slice(1)) as keyof typeof Haptics.ImpactFeedbackStyle
           ]
         );
       } else {
         Haptics.notificationAsync(
           Haptics.NotificationFeedbackType[
-            (haptic.charAt(0).toUpperCase() +
-              haptic.slice(1)) as keyof typeof Haptics.NotificationFeedbackType
+          (haptic.charAt(0).toUpperCase() +
+            haptic.slice(1)) as keyof typeof Haptics.NotificationFeedbackType
           ]
         );
       }
@@ -88,7 +90,10 @@ const Button: React.FC<ButtonProps> = ({
   const content = loading ? (
     <ActivityIndicator color={isPrimary ? COLORS.white : COLORS.charcoal} />
   ) : (
-    <Text style={textStyles}>{title}</Text>
+    <>
+      {icon}
+      <Text style={[textStyles, icon ? { marginLeft: 8 } : {}]}>{title}</Text>
+    </>
   );
 
   // LinearGradient chỉ áp dụng cho primary và không disabled

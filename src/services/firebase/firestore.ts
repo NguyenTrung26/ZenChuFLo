@@ -273,42 +273,254 @@ export const isWorkoutFavorited = async (
   uid: string,
   workoutId: string
 ): Promise<boolean> => {
-  const q = query(
-    collection(db, "favorites"),
-    where("userId", "==", uid),
-    where("workoutId", "==", workoutId)
-  );
-  const querySnapshot = await getDocs(q);
-  return !querySnapshot.empty;
+  const docRef = doc(db, "users", uid, "favorites", workoutId);
+  const docSnap = await getDoc(docRef);
+  return docSnap.exists();
 };
 
-// Thêm một bài tập vào danh sách yêu thích
-export const addFavorite = async (uid: string, workoutId: string) => {
-  await addDoc(collection(db, "favorites"), {
-    userId: uid,
-    workoutId: workoutId,
+// Thêm một bài tập vào danh sách yêu thích (Lưu toàn bộ object)
+export const addFavorite = async (uid: string, workout: Workout) => {
+  const docRef = doc(db, "users", uid, "favorites", workout.id);
+  await setDoc(docRef, {
+    ...workout,
     addedAt: Timestamp.now(),
   });
 };
 
 // Xóa một bài tập khỏi danh sách yêu thích
 export const removeFavorite = async (uid: string, workoutId: string) => {
-  const q = query(
-    collection(db, "favorites"),
-    where("userId", "==", uid),
-    where("workoutId", "==", workoutId)
-  );
+  const docRef = doc(db, "users", uid, "favorites", workoutId);
+  await deleteDoc(docRef);
+};
+
+// Lấy danh sách bài tập yêu thích (Trả về full Workout objects)
+export const getFavoriteWorkouts = async (uid: string): Promise<Workout[]> => {
+  const favoritesRef = collection(db, "users", uid, "favorites");
+  const q = query(favoritesRef, orderBy("addedAt", "desc"));
   const querySnapshot = await getDocs(q);
-  querySnapshot.forEach(async (document) => {
-    await deleteDoc(doc(db, "favorites", document.id));
+  return querySnapshot.docs.map((doc) => {
+    const data = doc.data();
+    // Loại bỏ trường addedAt trước khi trả về nếu cần, hoặc giữ lại
+    const { addedAt, ...workoutData } = data;
+    return { id: doc.id, ...workoutData } as Workout;
   });
 };
 
-// Lấy danh sách ID các bài tập yêu thích
+// --- WORKOUT COMPLETION TRACKING ---
+
+/**
+ * Mark a workout as completed
+ */
+export const markWorkoutComplete = async (
+  uid: string,
+  workoutId: string,
+  day?: number,
+  planId?: string
+) => {
+  if (!uid) return { success: false, error: "No user ID provided" };
+
+  try {
+    const completionRef = collection(db, "users", uid, "completedWorkouts");
+    await addDoc(completionRef, {
+      workoutId,
+      day: day || null,
+      planId: planId || null,
+      completedAt: Timestamp.now(),
+    });
+
+    // Update user stats
+    await updateUserStats(uid, 0); // Duration will be tracked separately
+
+    return { success: true, error: null };
+  } catch (error: any) {
+    console.error("Error marking workout complete:", error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Check if a workout is completed
+ */
+export const isWorkoutCompleted = async (
+  uid: string,
+  workoutId: string,
+  day?: number
+): Promise<boolean> => {
+  if (!uid) return false;
+
+  try {
+    const completionRef = collection(db, "users", uid, "completedWorkouts");
+    let q = query(completionRef, where("workoutId", "==", workoutId));
+
+    if (day !== undefined) {
+      q = query(q, where("day", "==", day));
+    }
+
+    const snapshot = await getDocs(q);
+    return !snapshot.empty;
+  } catch (error) {
+    console.error("Error checking workout completion:", error);
+    return false;
+  }
+};
+
+/**
+ * Get all completed workouts for a user
+ */
+export const getCompletedWorkouts = async (uid: string, planId?: string) => {
+  if (!uid) return [];
+
+  try {
+    const completionRef = collection(db, "users", uid, "completedWorkouts");
+    let q = query(completionRef, orderBy("completedAt", "desc"));
+
+    if (planId) {
+      q = query(completionRef, where("planId", "==", planId), orderBy("completedAt", "desc"));
+    }
+
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error("Error getting completed workouts:", error);
+    return [];
+  }
+};
+
+/**
+ * Get user statistics
+ */
+export const getUserStats = async (uid: string) => {
+  if (!uid) return null;
+
+  try {
+    const userDoc = await getUserDocument(uid);
+    return userDoc?.stats || {
+      totalMinutes: 0,
+      totalSessions: 0,
+      currentStreak: 0,
+      longestStreak: 0,
+    };
+  } catch (error) {
+    console.error("Error getting user stats:", error);
+    return null;
+  }
+};
+
+/**
+ * Calculate and update streak
+ */
+export const calculateStreak = async (uid: string) => {
+  if (!uid) return { currentStreak: 0, longestStreak: 0 };
+
+  try {
+    const sessionsRef = collection(db, "sessions");
+    const q = query(
+      sessionsRef,
+      where("userId", "==", uid),
+      orderBy("completedAt", "desc")
+    );
+
+    const snapshot = await getDocs(q);
+    const sessions = snapshot.docs.map(doc => doc.data());
+
+    if (sessions.length === 0) {
+      return { currentStreak: 0, longestStreak: 0 };
+    }
+
+    // Calculate current streak
+    let currentStreak = 0;
+    let longestStreak = 0;
+    let tempStreak = 0;
+    let lastDate: Date | null = null;
+
+    sessions.forEach((session: any) => {
+      const sessionDate = session.completedAt.toDate();
+      const sessionDay = new Date(sessionDate.getFullYear(), sessionDate.getMonth(), sessionDate.getDate());
+
+      if (!lastDate) {
+        // First session
+        const today = new Date();
+        const todayDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const diffDays = Math.floor((todayDay.getTime() - sessionDay.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (diffDays <= 1) {
+          currentStreak = 1;
+          tempStreak = 1;
+        }
+        lastDate = sessionDay;
+      } else {
+        const diffDays = Math.floor((lastDate.getTime() - sessionDay.getTime()) / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) {
+          // Consecutive day
+          if (currentStreak > 0) currentStreak++;
+          tempStreak++;
+        } else if (diffDays > 1) {
+          // Streak broken
+          currentStreak = 0;
+          longestStreak = Math.max(longestStreak, tempStreak);
+          tempStreak = 1;
+        }
+        // diffDays === 0 means same day, don't increment
+
+        lastDate = sessionDay;
+      }
+    });
+
+    longestStreak = Math.max(longestStreak, tempStreak, currentStreak);
+
+    // Update in Firestore
+    const userDocRef = doc(db, "users", uid);
+    await updateDoc(userDocRef, {
+      "stats.currentStreak": currentStreak,
+      "stats.longestStreak": longestStreak,
+    });
+
+    return { currentStreak, longestStreak };
+  } catch (error) {
+    console.error("Error calculating streak:", error);
+    return { currentStreak: 0, longestStreak: 0 };
+  }
+};
+
+/**
+ * Get weekly sessions for charts
+ */
+export const getWeeklySessions = async (uid: string) => {
+  if (!uid) return [];
+
+  try {
+    const today = new Date();
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(today.getDate() - 7);
+
+    const sessionsRef = collection(db, "sessions");
+    const q = query(
+      sessionsRef,
+      where("userId", "==", uid),
+      where("completedAt", ">=", Timestamp.fromDate(sevenDaysAgo)),
+      orderBy("completedAt", "asc")
+    );
+
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error("Error getting weekly sessions:", error);
+    return [];
+  }
+};
+
+
+// Deprecated: Giữ lại để tương thích ngược tạm thời hoặc xóa nếu không dùng
 export const getFavoriteWorkoutIds = async (uid: string): Promise<string[]> => {
-  const q = query(collection(db, "favorites"), where("userId", "==", uid));
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map((doc) => doc.data().workoutId);
+  const workouts = await getFavoriteWorkouts(uid);
+  return workouts.map(w => w.id);
 };
 
 // Kiểu dữ liệu cho session và mood
