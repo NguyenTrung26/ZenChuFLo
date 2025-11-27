@@ -46,7 +46,7 @@ export async function generateWorkoutPlanWithAI(
     try {
         const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
         const prompt = `
-Bạn là chuyên gia huấn luyện Yoga và Thiền định. Hãy tạo một kế hoạch tập luyện 7 ngày cá nhân hóa dựa trên thông tin sau:
+Bạn là chuyên gia huấn luyện Yoga và Thiền định chuyên nghiệp. Hãy tạo một kế hoạch tập luyện 7 ngày CỰC KỲ CHI TIẾT và cá nhân hóa dựa trên thông tin sau:
 
 **Thông tin người dùng:**
 - Tuổi: ${profile.age || 'không rõ'}
@@ -60,45 +60,62 @@ Bạn là chuyên gia huấn luyện Yoga và Thiền định. Hãy tạo một 
 - Cấp độ đề xuất: ${recommendedLevel}
 - Thời lượng đề xuất: ${recommendedDuration} phút/ngày
 
-**Yêu cầu:**
-1. Tạo lộ trình 7 ngày với các bài tập cụ thể (yoga, meditation, breathing).
-2. Mỗi ngày có focus (chủ đề) rõ ràng.
-3. Cung cấp hướng dẫn chi tiết từng bước cho mỗi bài tập.
+**YÊU CẦU QUAN TRỌNG:**
+1. Tạo lộ trình 7 ngày với 2-3 bài tập cụ thể MỖI NGÀY (yoga, meditation, hoặc breathing).
+2. Mỗi ngày phải có focus (chủ đề) rõ ràng và details mô tả tổng quan.
+3. **QUAN TRỌNG NHẤT**: Mỗi bài tập PHẢI có 5-8 bước hướng dẫn CỰC KỲ CHI TIẾT, dễ hiểu.
+4. Mỗi bước hướng dẫn phải dài ít nhất 15-25 từ, mô tả rõ ràng động tác, hơi thở, và cảm giác.
+5. Đảm bảo instructions thực tế, có thể thực hiện được, phù hợp với cấp độ ${recommendedLevel}.
 
-**Format trả về (JSON):**
+**VÍ DỤ BÀI TẬP YOGA CHI TIẾT:**
+{
+  "name": "Tư thế Chào mặt trời (Surya Namaskar)",
+  "type": "yoga",
+  "duration": "10 phút",
+  "calories": "50 kcal",
+  "instructions": [
+    "Bước 1: Đứng thẳng ở đầu thảm, hai chân khép lại, hai tay chắp trước ngực ở tư thế cầu nguyện (Pranamasana). Hít thở sâu, tập trung vào hơi thở và cảm nhận sự ổn định của cơ thể.",
+    "Bước 2: Hít vào sâu, nâng hai tay lên cao qua đầu, lưng cong nhẹ về phía sau (Hasta Uttanasana). Nhìn lên trời, kéo dài cột sống, cảm nhận sự mở rộng ở ngực.",
+    "Bước 3: Thở ra, cúi người về phía trước từ hông, đưa hai tay chạm đất bên cạnh hai bàn chân (Hasta Padasana). Giữ đầu gối thẳng nếu có thể, hoặc gập nhẹ nếu cần.",
+    "Bước 4: Hít vào, đưa chân phải ra sau thành tư thế lunge, đầu gối trái gập 90 độ. Nhìn lên trước, giữ lưng thẳng, cảm nhận sự kéo dài ở đùi sau chân phải.",
+    "Bước 5: Giữ hơi thở, đưa chân trái ra sau, thành tư thế plank (Dandasana). Giữ cơ thể thẳng từ đầu đến gót chân, kích hoạt cơ bụng và cơ lõi.",
+    "Bước 6: Thở ra, hạ đầu gối, ngực và cằm xuống đất (Ashtanga Namaskara). Hông nâng cao, tám điểm chạm đất: hai bàn chân, hai đầu gối, hai bàn tay, ngực và cằm.",
+    "Bước 7: Hít vào, trượt người về phía trước thành tư thế rắn hổ mang (Bhujangasana). Nâng ngực lên, vai ra sau, nhìn lên trời, cảm nhận sự kéo dài ở cột sống.",
+    "Bước 8: Thở ra, nâng hông lên cao thành tư thế chó úp mặt (Adho Mukha Svanasana). Đẩy gót chân xuống đất, kéo dài cột sống, giữ 3-5 nhịp thở sâu."
+  ],
+  "benefits": "Tăng cường sức mạnh toàn thân, cải thiện tuần hoàn máu, tăng sự linh hoạt, giảm stress và tăng năng lượng cho cả ngày."
+}
+
+**FORMAT TRẢ VỀ (JSON):**
 {
   "weeklyPlan": [
     {
       "day": 1,
-      "focus": "Khởi động nhẹ nhàng",
-      "details": "Mô tả tổng quan ngày tập",
+      "focus": "Khởi động và làm quen",
+      "details": "Ngày đầu tiên tập trung vào các động tác cơ bản để làm quen với yoga và thiền. Bắt đầu nhẹ nhàng để cơ thể thích nghi.",
       "exercises": [
-        {
-          "name": "Tên bài tập (VD: Chào mặt trời A)",
-          "type": "yoga", // hoặc "meditation", "breathing"
-          "duration": "10 phút",
-          "calories": "50 kcal",
-          "instructions": [
-            "Bước 1: Đứng thẳng...",
-            "Bước 2: Hít vào...",
-            "Bước 3: Thở ra..."
-          ],
-          "benefits": "Lợi ích của bài tập này"
-        }
+        { /* Bài tập 1 với 5-8 bước chi tiết */ },
+        { /* Bài tập 2 với 5-8 bước chi tiết */ }
       ]
     },
-    ...
+    // ... 6 ngày còn lại
   ],
   "tips": [
-    "Lời khuyên 1",
-    ...
+    "Lời khuyên cụ thể 1",
+    "Lời khuyên cụ thể 2",
+    "Lời khuyên cụ thể 3",
+    "Lời khuyên cụ thể 4",
+    "Lời khuyên cụ thể 5"
   ]
 }
 
-Lưu ý:
-- "type" chỉ được là: "yoga", "meditation", "breathing"
-- "instructions" phải chi tiết, dễ hiểu, từng bước một.
-- Chỉ trả về JSON hợp lệ, không thêm text khác.
+**LƯU Ý QUAN TRỌNG:**
+- "type" CHỈ được là: "yoga", "meditation", hoặc "breathing"
+- MỖI bài tập PHẢI có TỐI THIỂU 5 bước, TỐI ĐA 8 bước trong "instructions"
+- MỖI bước phải dài 15-25 từ, mô tả CỰC KỲ CHI TIẾT
+- "details" của mỗi ngày phải dài 20-30 từ
+- "benefits" phải cụ thể và thuyết phục
+- CHỈ trả về JSON hợp lệ, KHÔNG thêm markdown, code block, hoặc text giải thích
 `;
 
         const result = await model.generateContent(prompt);

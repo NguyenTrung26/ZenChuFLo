@@ -11,6 +11,7 @@ export type MainTabParamList = {
   Workout: undefined;
   Meditation: undefined;
   ProgressTab: undefined;
+  WorkoutPlan: undefined;
   Profile: undefined;
 };
 
@@ -26,11 +27,21 @@ export type HomeStackParamList = {
   WorkoutDetail: { workout: Workout };
   WorkoutPlayer: { workout: Workout };
   Completion: { workout: Workout };
-  MoodJournal: undefined;
+  MoodJournal: { mood?: MoodValue };
   Breathing: undefined;
   MeditationTimer: undefined;
   Soundscapes: undefined;
   PersonalizedPlan: undefined;
+};
+
+export type WorkoutPlanStackParamList = {
+  PlanList: undefined;
+  DayDetail: {
+    day: number;
+    exercises: any[];
+    focus: string;
+    details?: string;
+  };
 };
 
 export type ProfileStackParamList = {

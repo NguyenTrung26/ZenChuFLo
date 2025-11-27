@@ -40,12 +40,15 @@ import MeditationTimerScreen from "../screens/home/MeditationTimerScreen";
 import SoundscapesScreen from "../screens/home/SoundscapesScreen";
 import HealthProfileScreen from "../screens/profile/HealthProfileScreen";
 import PersonalizedPlanScreen from "../screens/home/PersonalizedPlanScreen";
+import WorkoutPlanScreen from "../screens/plan/WorkoutPlanScreen";
+import DayDetailScreen from "../screens/plan/DayDetailScreen";
 // Types
 import {
   AuthStackParamList,
   OnboardingStackParamList,
   HomeStackParamList,
   ProfileStackParamList,
+  WorkoutPlanStackParamList,
 } from "./types";
 
 // --- Stack & Tab Navigators ---
@@ -53,6 +56,7 @@ const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const OnboardingStack = createNativeStackNavigator<OnboardingStackParamList>();
 const HomeStack = createStackNavigator<HomeStackParamList>();
 const ProfileStack = createStackNavigator<ProfileStackParamList>();
+const WorkoutPlanStack = createStackNavigator<WorkoutPlanStackParamList>();
 const Tab = createBottomTabNavigator();
 
 // --- Auth Flow ---
@@ -127,6 +131,16 @@ function HomeNavigator() {
         options={{ headerShown: false }}
       />
     </HomeStack.Navigator>
+  );
+}
+
+// --- Workout Plan Stack Navigator ---
+function WorkoutPlanNavigator() {
+  return (
+    <WorkoutPlanStack.Navigator screenOptions={{ headerShown: false }}>
+      <WorkoutPlanStack.Screen name="PlanList" component={WorkoutPlanScreen} />
+      <WorkoutPlanStack.Screen name="DayDetail" component={DayDetailScreen} />
+    </WorkoutPlanStack.Navigator>
   );
 }
 
@@ -228,6 +242,20 @@ function MainNavigator() {
             const iconName: keyof typeof Ionicons.glyphMap = focused
               ? "stats-chart"
               : "stats-chart-outline";
+            return <Ionicons name={iconName} size={size} color={color} />;
+          },
+        }}
+      />
+      <Tab.Screen
+        name="WorkoutPlan"
+        component={WorkoutPlanNavigator}
+        options={{
+          title: "Lộ trình",
+          headerShown: false,
+          tabBarIcon: ({ focused, color, size }) => {
+            const iconName: keyof typeof Ionicons.glyphMap = focused
+              ? "calendar"
+              : "calendar-outline";
             return <Ionicons name={iconName} size={size} color={color} />;
           },
         }}

@@ -8,8 +8,10 @@ interface RecommendationResult {
     recommendedTypes: string[];
     weeklyPlan: {
         day: number;
-        workouts: string[]; // workout IDs or types
+        workouts?: string[]; // workout IDs or types (for fallback)
+        exercises?: any[]; // detailed exercises from AI
         focus: string;
+        details?: string;
     }[];
     bmi: number;
     bmiCategory: string;
@@ -83,18 +85,12 @@ export async function generateRecommendations(
                 recommendedDuration
             );
 
-            // Use AI-generated plan - map exercises to workout types
-            const mappedWeeklyPlan = aiPlan.weeklyPlan.map(day => ({
-                day: day.day,
-                workouts: day.exercises.map(ex => ex.type), // Map exercises to their types
-                focus: day.focus,
-            }));
-
+            // Use AI-generated plan directly
             return {
                 recommendedLevel,
                 recommendedDuration,
                 recommendedTypes,
-                weeklyPlan: mappedWeeklyPlan,
+                weeklyPlan: aiPlan.weeklyPlan, // Use full AI plan with exercises
                 bmi: Math.round(bmi * 10) / 10,
                 bmiCategory,
                 tips: aiPlan.tips,

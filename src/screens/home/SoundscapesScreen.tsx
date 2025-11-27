@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { MotiView } from "moti";
+import { Audio } from "expo-av";
 import { DARK_COLORS, COLORS } from "../../constants/colors";
 import { FONT_SIZES, FONT_WEIGHTS } from "../../constants/typography";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -10,25 +11,131 @@ import { HomeStackParamList } from "../../navigation/types";
 
 type Props = NativeStackScreenProps<HomeStackParamList, "Soundscapes">;
 
+// Local ambient sounds (offline support)
 const SOUNDSCAPES = [
-    { id: "rain", name: "Mưa", emoji: "🌧️", color: "#4A90E2" },
-    { id: "ocean", name: "Đại dương", emoji: "🌊", color: "#00B4D8" },
-    { id: "forest", name: "Rừng", emoji: "🌲", color: "#52B788" },
-    { id: "fire", name: "Lửa", emoji: "🔥", color: "#FF6B35" },
-    { id: "wind", name: "Gió", emoji: "💨", color: "#90E0EF" },
-    { id: "birds", name: "Chim hót", emoji: "🐦", color: "#FFD60A" },
+    {
+        id: "rain",
+        name: "Mưa",
+        emoji: "🌧️",
+        color: "#4A90E2",
+        sound: require("../../../assets/sounds/rain.mp3")
+    },
+    {
+        id: "ocean",
+        name: "Đại dương",
+        emoji: "🌊",
+        color: "#00B4D8",
+        sound: require("../../../assets/sounds/ocean.mp3")
+    },
+    {
+        id: "forest",
+        name: "Rừng",
+        emoji: "🌲",
+        color: "#52B788",
+        sound: require("../../../assets/sounds/forest.mp3")
+    },
+    {
+        id: "fire",
+        name: "Lửa",
+        emoji: "🔥",
+        color: "#FF6B35",
+        sound: require("../../../assets/sounds/bird.mp3")
+    },
+    {
+        id: "wind",
+        name: "Gió",
+        emoji: "💨",
+        color: "#90E0EF",
+        sound: require("../../../assets/sounds/bird.mp3")
+    },
+    {
+        id: "birds",
+        name: "Chim hót",
+        emoji: "🐦",
+        color: "#FFD60A",
+        sound: require("../../../assets/sounds/bird.mp3")
+    },
 ];
 
 const SoundscapesScreen: React.FC<Props> = ({ navigation }) => {
     const [playing, setPlaying] = useState<string | null>(null);
+    const [loading, setLoading] = useState<string | null>(null);
+    const soundRef = useRef<Audio.Sound | null>(null);
 
-    const toggleSound = (id: string) => {
+    // Configure audio mode on mount
+    useEffect(() => {
+        configureAudio();
+        return () => {
+            // Cleanup on unmount
+            stopSound();
+        };
+    }, []);
+
+    const configureAudio = async () => {
+        try {
+            await Audio.setAudioModeAsync({
+                playsInSilentModeIOS: true,
+                staysActiveInBackground: true,
+                shouldDuckAndroid: true,
+            });
+        } catch (error) {
+            console.error("Error configuring audio:", error);
+        }
+    };
+
+    const stopSound = async () => {
+        try {
+            if (soundRef.current) {
+                await soundRef.current.stopAsync();
+                await soundRef.current.unloadAsync();
+                soundRef.current = null;
+            }
+        } catch (error) {
+            console.error("Error stopping sound:", error);
+        }
+    };
+
+    const playSound = async (soundId: string) => {
+        try {
+            setLoading(soundId);
+
+            // Stop current sound if playing
+            await stopSound();
+
+            // Find the sound data
+            const soundData = SOUNDSCAPES.find(s => s.id === soundId);
+            if (!soundData) return;
+
+            // Create and load new sound from local asset
+            const { sound } = await Audio.Sound.createAsync(
+                soundData.sound,
+                { shouldPlay: true, isLooping: true, volume: 1.0 },
+                null
+            );
+
+            soundRef.current = sound;
+            setPlaying(soundId);
+            setLoading(null);
+        } catch (error) {
+            console.error("Error playing sound:", error);
+            setLoading(null);
+            Alert.alert(
+                "Lỗi phát âm thanh",
+                "Không thể phát âm thanh này. Vui lòng đảm bảo file âm thanh đã được download vào thư mục assets/sounds/"
+            );
+        }
+    };
+
+    const toggleSound = async (id: string) => {
+        if (loading) return; // Prevent multiple clicks while loading
+
         if (playing === id) {
+            // Stop current sound
+            await stopSound();
             setPlaying(null);
-            // TODO: Stop audio
         } else {
-            setPlaying(id);
-            // TODO: Play audio
+            // Play new sound
+            await playSound(id);
         }
     };
 
@@ -36,7 +143,10 @@ const SoundscapesScreen: React.FC<Props> = ({ navigation }) => {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity
-                    onPress={() => navigation.goBack()}
+                    onPress={() => {
+                        stopSound(); // Stop sound when leaving
+                        navigation.goBack();
+                    }}
                     style={styles.backButton}
                 >
                     <Ionicons name="close" size={28} color={DARK_COLORS.text} />
@@ -52,6 +162,8 @@ const SoundscapesScreen: React.FC<Props> = ({ navigation }) => {
                 <View style={styles.grid}>
                     {SOUNDSCAPES.map((sound, index) => {
                         const isPlaying = playing === sound.id;
+                        const isLoading = loading === sound.id;
+
                         return (
                             <MotiView
                                 key={sound.id}
@@ -66,6 +178,7 @@ const SoundscapesScreen: React.FC<Props> = ({ navigation }) => {
                                         isPlaying && { backgroundColor: sound.color },
                                     ]}
                                     onPress={() => toggleSound(sound.id)}
+                                    disabled={isLoading}
                                 >
                                     <Text style={styles.emoji}>{sound.emoji}</Text>
                                     <Text
@@ -76,7 +189,19 @@ const SoundscapesScreen: React.FC<Props> = ({ navigation }) => {
                                     >
                                         {sound.name}
                                     </Text>
-                                    {isPlaying && (
+
+                                    {isLoading && (
+                                        <MotiView
+                                            from={{ rotate: "0deg" }}
+                                            animate={{ rotate: "360deg" }}
+                                            transition={{ type: "timing", duration: 1000, loop: true }}
+                                            style={styles.playingIndicator}
+                                        >
+                                            <Ionicons name="sync" size={20} color={DARK_COLORS.accent} />
+                                        </MotiView>
+                                    )}
+
+                                    {isPlaying && !isLoading && (
                                         <MotiView
                                             from={{ scale: 1 }}
                                             animate={{ scale: 1.2 }}
@@ -99,7 +224,7 @@ const SoundscapesScreen: React.FC<Props> = ({ navigation }) => {
                 <View style={styles.info}>
                     <Ionicons name="information-circle-outline" size={20} color={DARK_COLORS.textSecondary} />
                     <Text style={styles.infoText}>
-                        Âm thanh sẽ phát liên tục. Nhấn lại để dừng.
+                        Âm thanh sẽ phát liên tục. Nhấn lại để dừng. Hoạt động offline!
                     </Text>
                 </View>
             </ScrollView>

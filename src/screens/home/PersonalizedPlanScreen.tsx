@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { MotiView } from "moti";
@@ -17,7 +17,10 @@ import {
     removeFavorite,
     isWorkoutFavorited,
     getFavoriteWorkoutIds,
-    getFavoriteWorkouts
+    getFavoriteWorkouts,
+    saveWorkoutPlan,
+    getWorkoutPlan,
+    deleteWorkoutPlan
 } from "../../services/firebase/firestore";
 import { Workout } from "../../types";
 
@@ -30,6 +33,7 @@ const PersonalizedPlanScreen: React.FC<Props> = ({ navigation }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
+    const [hasSavedPlan, setHasSavedPlan] = useState(false);
 
     // Load favorites on mount
     // Load favorites on mount
@@ -81,12 +85,35 @@ const PersonalizedPlanScreen: React.FC<Props> = ({ navigation }) => {
 
     useEffect(() => {
         const loadRecommendations = async () => {
+            if (!auth.currentUser) {
+                setLoading(false);
+                return;
+            }
+
             if (profile?.healthProfile) {
                 try {
                     setLoading(true);
                     setError(null);
+
+                    // Try to load saved plan first
+                    const savedPlan = await getWorkoutPlan(auth.currentUser.uid);
+                    if (savedPlan && savedPlan.recommendation) {
+                        setRecommendation(savedPlan.recommendation);
+                        setHasSavedPlan(true);
+                        setLoading(false);
+                        return;
+                    }
+
+                    // Generate new plan if no saved plan
                     const rec = await generateRecommendations(profile.healthProfile, true);
                     setRecommendation(rec);
+
+                    // Save the generated plan
+                    await saveWorkoutPlan(auth.currentUser.uid, {
+                        recommendation: rec,
+                        healthProfile: profile.healthProfile
+                    });
+                    setHasSavedPlan(true);
                 } catch (err) {
                     console.error('Error generating recommendations:', err);
                     setError('Không thể tạo lộ trình. Vui lòng thử lại sau.');
@@ -94,6 +121,15 @@ const PersonalizedPlanScreen: React.FC<Props> = ({ navigation }) => {
                     try {
                         const rec = await generateRecommendations(profile.healthProfile, false);
                         setRecommendation(rec);
+
+                        // Save fallback plan
+                        if (auth.currentUser) {
+                            await saveWorkoutPlan(auth.currentUser.uid, {
+                                recommendation: rec,
+                                healthProfile: profile.healthProfile
+                            });
+                            setHasSavedPlan(true);
+                        }
                         setError(null);
                     } catch (fallbackErr) {
                         console.error('Fallback also failed:', fallbackErr);
@@ -111,6 +147,46 @@ const PersonalizedPlanScreen: React.FC<Props> = ({ navigation }) => {
 
     const toggleDay = (day: number) => {
         setExpandedDay(expandedDay === day ? null : day);
+    };
+
+    const handleDeletePlan = () => {
+        Alert.alert(
+            "Xóa lộ trình",
+            "Bạn có chắc muốn xóa lộ trình hiện tại? Lộ trình mới sẽ được tạo lại.",
+            [
+                { text: "Hủy", style: "cancel" },
+                {
+                    text: "Xóa",
+                    style: "destructive",
+                    onPress: async () => {
+                        if (!auth.currentUser) return;
+
+                        try {
+                            setLoading(true);
+                            await deleteWorkoutPlan(auth.currentUser.uid);
+                            setHasSavedPlan(false);
+                            setRecommendation(null);
+
+                            // Regenerate plan
+                            if (profile?.healthProfile) {
+                                const rec = await generateRecommendations(profile.healthProfile, true);
+                                setRecommendation(rec);
+                                await saveWorkoutPlan(auth.currentUser.uid, {
+                                    recommendation: rec,
+                                    healthProfile: profile.healthProfile
+                                });
+                                setHasSavedPlan(true);
+                            }
+                        } catch (err) {
+                            console.error('Error deleting plan:', err);
+                            Alert.alert("Lỗi", "Không thể xóa lộ trình. Vui lòng thử lại.");
+                        } finally {
+                            setLoading(false);
+                        }
+                    }
+                }
+            ]
+        );
     };
 
     const getDailyTip = (day: number): string => {
@@ -209,6 +285,14 @@ const PersonalizedPlanScreen: React.FC<Props> = ({ navigation }) => {
                     <Ionicons name="arrow-back" size={24} color={DARK_COLORS.text} />
                 </TouchableOpacity>
                 <Text style={styles.title}>Lộ trình cho bạn</Text>
+                {hasSavedPlan && (
+                    <TouchableOpacity
+                        onPress={handleDeletePlan}
+                        style={styles.deleteButton}
+                    >
+                        <Ionicons name="trash-outline" size={22} color={COLORS.red} />
+                    </TouchableOpacity>
+                )}
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
@@ -415,6 +499,10 @@ const styles = StyleSheet.create({
         fontSize: FONT_SIZES.h3,
         fontWeight: FONT_WEIGHTS.bold,
         color: DARK_COLORS.text,
+        flex: 1,
+    },
+    deleteButton: {
+        padding: 8,
     },
     content: { padding: 20, paddingTop: 0 },
     bmiCard: {

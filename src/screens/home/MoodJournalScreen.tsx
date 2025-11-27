@@ -8,6 +8,7 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
@@ -28,8 +29,22 @@ const MOODS = [
   { value: "terrible", label: "Rất tệ", emoji: "😫", color: "#2C3E50" },
 ];
 
-const MoodJournalScreen: React.FC<Props> = ({ navigation }) => {
-  const [selectedMood, setSelectedMood] = useState<string | null>(null);
+const screenWidth = Dimensions.get("window").width;
+// Calculate mood button size based on screen width
+const getMoodButtonSize = () => {
+  const padding = 40; // Total horizontal padding
+  const gap = 16; // Gap between buttons
+  const buttonsPerRow = screenWidth < 360 ? 2 : 3; // 2 buttons on very small screens, 3 otherwise
+  const totalGaps = (buttonsPerRow - 1) * gap;
+  const availableWidth = screenWidth - padding - totalGaps;
+  const buttonSize = Math.floor(availableWidth / buttonsPerRow);
+  return Math.min(buttonSize, 110); // Max size of 110
+};
+
+const MoodJournalScreen: React.FC<Props> = ({ navigation, route }) => {
+  const [selectedMood, setSelectedMood] = useState<string | null>(
+    route.params?.mood || null
+  );
   const [note, setNote] = useState("");
 
   const handleSave = () => {
@@ -37,6 +52,8 @@ const MoodJournalScreen: React.FC<Props> = ({ navigation }) => {
     console.log("Saved mood:", { mood: selectedMood, note });
     navigation.goBack();
   };
+
+  const moodButtonSize = getMoodButtonSize();
 
   return (
     <SafeAreaView style={styles.container} edges={["bottom"]}>
@@ -65,6 +82,7 @@ const MoodJournalScreen: React.FC<Props> = ({ navigation }) => {
                   <TouchableOpacity
                     style={[
                       styles.moodButton,
+                      { width: moodButtonSize, height: moodButtonSize },
                       isSelected && {
                         backgroundColor: mood.color,
                         borderColor: mood.color,
@@ -78,6 +96,8 @@ const MoodJournalScreen: React.FC<Props> = ({ navigation }) => {
                         styles.moodLabel,
                         isSelected && { color: COLORS.white },
                       ]}
+                      numberOfLines={1}
+                      adjustsFontSizeToFit
                     >
                       {mood.label}
                     </Text>
@@ -138,8 +158,6 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   moodButton: {
-    width: 100,
-    height: 100,
     borderRadius: 20,
     backgroundColor: DARK_COLORS.surface,
     borderWidth: 2,

@@ -7,7 +7,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { HomeStackParamList } from "../../../navigation/types";
 import { MoodValue } from "../../../types";
 import * as Haptics from "expo-haptics";
-import { COLORS } from "../../../constants/colors";
+import { DARK_COLORS } from "../../../constants/colors";
 import { FONT_SIZES, FONT_WEIGHTS } from "../../../constants/typography";
 import Animated, {
   useSharedValue,
@@ -101,12 +101,12 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: FONT_SIZES.h1,
     fontWeight: FONT_WEIGHTS.bold,
-    color: COLORS.charcoal,
+    color: DARK_COLORS.text,
   },
   prompt: {
     fontSize: FONT_SIZES.body,
     fontWeight: FONT_WEIGHTS.regular,
-    color: COLORS.lightGray,
+    color: DARK_COLORS.textSecondary,
     marginTop: 4,
   },
   moodsContainer: {
@@ -119,17 +119,15 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: COLORS.white,
+    backgroundColor: DARK_COLORS.surface,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 4,
+    borderWidth: 1,
+    borderColor: DARK_COLORS.border,
   },
   selectedMood: {
-    backgroundColor: COLORS.sageGreen,
+    backgroundColor: DARK_COLORS.accent,
+    borderColor: DARK_COLORS.accent,
   },
   moodText: { fontSize: 28 },
 });

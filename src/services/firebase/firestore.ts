@@ -4,24 +4,24 @@ import {
   getDoc,
   setDoc,
   updateDoc,
-  collection, // Thêm import
-  addDoc, // Thêm import
-  Timestamp, // Thêm import
-  increment, // Thêm import
-  query, // Thêm
-  where, // Thêm
-  getDocs, // Thêm
+  collection,
+  addDoc,
+  Timestamp,
+  increment,
+  query,
+  where,
+  getDocs,
   orderBy,
-  deleteDoc, // Thêm
+  deleteDoc,
+  deleteField
 } from "firebase/firestore";
 import { db } from "./config";
 import { Goal, Level } from "../../store/onboardingStore";
 import { MoodValue } from "../../types";
 export type Mood = "awesome" | "good" | "neutral" | "bad" | "terrible";
 import { Workout } from "../../types";
-// Hàm lấy chi tiết các bài tập dựa trên một mảng các ID
-// src/services/firebase/firestore.ts
 
+// Hàm lấy chi tiết các bài tập dựa trên một mảng các ID
 export const getWorkoutsByIds = async (ids: string[]): Promise<Workout[]> => {
   if (ids.length === 0) {
     return [];
@@ -33,7 +33,7 @@ export const getWorkoutsByIds = async (ids: string[]): Promise<Workout[]> => {
       where(
         "__name__",
         "in",
-        ids // <-- SỬA LẠI: Dùng trực tiếp mảng ids
+        ids
       )
     );
     const querySnapshot = await getDocs(q);
@@ -86,6 +86,7 @@ export const createUserMood = async (
     return { success: false, error: error.message };
   }
 };
+
 // --- HÀM MỚI ---
 export const updateHealthProfile = async (
   uid: string,
@@ -193,6 +194,7 @@ export const updateUserStats = async (uid: string, durationMinutes: number) => {
     return { success: false, error: error.message };
   }
 };
+
 // Tạo document người dùng mới (dùng cho sync hoặc sign up)
 export const createUserDocument = async (user: any) => {
   if (!user) return;
@@ -590,5 +592,111 @@ export const getUserJournalEntries = async (
   } catch (error) {
     console.error("Error getting journal entries:", error);
     return [];
+  }
+};
+
+// --- WORKOUT PLAN MANAGEMENT ---
+
+/**
+ * Save AI-generated workout plan to Firestore
+ */
+export const saveWorkoutPlan = async (
+  uid: string,
+  planData: {
+    recommendation: any;
+    healthProfile: any;
+  }
+) => {
+  if (!uid) {
+    console.error("❌ saveWorkoutPlan: No user ID provided");
+    return { success: false, error: "No user ID provided" };
+  }
+
+  // Helper to convert undefined to null (Firestore doesn't support undefined)
+  const sanitizeData = (data: any): any => {
+    if (data === undefined) return null;
+    if (data === null) return null;
+    if (Array.isArray(data)) return data.map(sanitizeData);
+    if (typeof data === 'object') {
+      const sanitized: any = {};
+      for (const key in data) {
+        sanitized[key] = sanitizeData(data[key]);
+      }
+      return sanitized;
+    }
+    return data;
+  };
+
+  try {
+    console.log("💾 Saving workout plan for user:", uid);
+    const sanitizedPlanData = sanitizeData(planData);
+    console.log("📊 Plan data (sanitized):", JSON.stringify(sanitizedPlanData, null, 2));
+
+    // Save directly to user document to avoid permission issues with sub-collections
+    const userDocRef = doc(db, "users", uid);
+    await updateDoc(userDocRef, {
+      workoutPlan: {
+        ...sanitizedPlanData,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      }
+    });
+
+    console.log("✅ Workout plan saved successfully to user profile!");
+    return { success: true, error: null };
+  } catch (error: any) {
+    console.error("❌ Error saving workout plan:", error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Get user's saved workout plan
+ */
+export const getWorkoutPlan = async (uid: string) => {
+  if (!uid) {
+    console.error("❌ getWorkoutPlan: No user ID provided");
+    return null;
+  }
+
+  try {
+    console.log("📖 Loading workout plan for user:", uid);
+    // Read from user document
+    const userDocRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userDocRef);
+
+    if (userSnap.exists()) {
+      const userData = userSnap.data();
+      if (userData.workoutPlan) {
+        console.log("✅ Workout plan loaded successfully from user profile!");
+        console.log("📊 Plan data:", JSON.stringify(userData.workoutPlan, null, 2));
+        return userData.workoutPlan;
+      }
+    }
+
+    console.log("⚠️ No workout plan found in user profile");
+    return null;
+  } catch (error) {
+    console.error("❌ Error getting workout plan:", error);
+    return null;
+  }
+};
+
+/**
+ * Delete user's saved workout plan
+ */
+export const deleteWorkoutPlan = async (uid: string) => {
+  if (!uid) return { success: false, error: "No user ID provided" };
+
+  try {
+    const userDocRef = doc(db, "users", uid);
+    // Remove the workoutPlan field
+    await updateDoc(userDocRef, {
+      workoutPlan: deleteField()
+    });
+    return { success: true, error: null };
+  } catch (error: any) {
+    console.error("Error deleting workout plan:", error);
+    return { success: false, error: error.message };
   }
 };

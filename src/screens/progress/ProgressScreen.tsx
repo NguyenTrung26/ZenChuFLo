@@ -201,28 +201,27 @@ const ProgressScreen: React.FC = () => {
                 labels: chartLabels,
                 datasets: [{ data: chartData ?? Array(7).fill(0) }],
               }}
-              width={screenWidth - 40}
+              width={Math.min(screenWidth - 40, 400)} // Responsive width with max limit
               height={250}
               fromZero
-              showValuesOnTopOfBars={true} // Hiển thị giá trị trên cột
+              showValuesOnTopOfBars={true}
               yAxisLabel=""
               yAxisSuffix="p"
-              // --- Cấu hình chart cho Dark Mode ---
               chartConfig={{
                 backgroundColor: DARK_COLORS.card,
                 backgroundGradientFrom: DARK_COLORS.card,
                 backgroundGradientTo: DARK_COLORS.card,
                 decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(52, 152, 219, ${opacity})`, // Sửa ở đây
-                labelColor: (opacity = 1) => `rgba(170, 180, 195, ${opacity})`, // Sửa ở đây
+                color: (opacity = 1) => `rgba(52, 152, 219, ${opacity})`,
+                labelColor: (opacity = 1) => `rgba(170, 180, 195, ${opacity})`,
                 propsForDots: {
                   r: "6",
                   strokeWidth: "2",
                   stroke: DARK_COLORS.accent,
                 },
                 propsForBackgroundLines: {
-                  stroke: DARK_COLORS.border, // Màu đường lưới
-                  strokeDasharray: "", // Nét liền
+                  stroke: DARK_COLORS.border,
+                  strokeDasharray: "",
                 },
               }}
               style={styles.chart}
@@ -271,24 +270,23 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   statCard: {
-    width: "48%",
+    width: screenWidth < 360 ? "100%" : "48%", // Full width on very small screens
     backgroundColor: DARK_COLORS.card,
-    borderRadius: 20, // Bo tròn nhiều hơn
+    borderRadius: 20,
     padding: 20,
     alignItems: "center",
     marginBottom: 16,
-    // Sử dụng border thay cho shadow trong dark mode
     borderWidth: 1,
     borderColor: DARK_COLORS.border,
   },
   iconWrapper: {
-    backgroundColor: "rgba(52, 152, 219, 0.1)", // Nền mờ cho icon
+    backgroundColor: "rgba(52, 152, 219, 0.1)",
     padding: 12,
-    borderRadius: 999, // Hình tròn
+    borderRadius: 999,
     marginBottom: 12,
   },
   statValue: {
-    fontSize: FONT_SIZES.h1, // Tăng kích thước số liệu
+    fontSize: FONT_SIZES.h1,
     fontWeight: FONT_WEIGHTS.bold,
     color: DARK_COLORS.textPrimary,
   },
