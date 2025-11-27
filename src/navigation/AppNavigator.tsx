@@ -42,6 +42,7 @@ import HealthProfileScreen from "../screens/profile/HealthProfileScreen";
 import PersonalizedPlanScreen from "../screens/home/PersonalizedPlanScreen";
 import WorkoutPlanScreen from "../screens/plan/WorkoutPlanScreen";
 import DayDetailScreen from "../screens/plan/DayDetailScreen";
+import PoseAnalysisScreen from "../screens/ai-coach/PoseAnalysisScreen";
 // Types
 import {
   AuthStackParamList,
@@ -128,6 +129,11 @@ function HomeNavigator() {
       <HomeStack.Screen
         name="PersonalizedPlan"
         component={PersonalizedPlanScreen}
+        options={{ headerShown: false }}
+      />
+      <HomeStack.Screen
+        name="PoseAnalysis"
+        component={PoseAnalysisScreen}
         options={{ headerShown: false }}
       />
     </HomeStack.Navigator>

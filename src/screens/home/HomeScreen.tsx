@@ -273,6 +273,16 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
 
+              <View style={styles.quickActionsContainer}>
+                <TouchableOpacity
+                  style={[styles.quickActionButton, { backgroundColor: DARK_COLORS.accent, borderColor: DARK_COLORS.accent }]}
+                  onPress={() => navigation.navigate("PoseAnalysis")}
+                >
+                  <Text style={styles.quickActionEmoji}>📸</Text>
+                  <Text style={[styles.quickActionText, { color: '#FFF' }]}>AI Yoga Coach</Text>
+                </TouchableOpacity>
+              </View>
+
               {/* Personalized Plan Banner */}
               {profile?.healthProfile && (
                 <TouchableOpacity

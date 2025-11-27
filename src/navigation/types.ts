@@ -32,6 +32,7 @@ export type HomeStackParamList = {
   MeditationTimer: undefined;
   Soundscapes: undefined;
   PersonalizedPlan: undefined;
+  PoseAnalysis: undefined;
 };
 
 export type WorkoutPlanStackParamList = {

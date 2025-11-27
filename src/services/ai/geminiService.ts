@@ -44,7 +44,7 @@ export async function generateWorkoutPlanWithAI(
     recommendedDuration: number
 ): Promise<GeminiWorkoutPlan> {
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-001' });
         const prompt = `
 Bạn là chuyên gia huấn luyện Yoga và Thiền định chuyên nghiệp. Hãy tạo một kế hoạch tập luyện 7 ngày CỰC KỲ CHI TIẾT và cá nhân hóa dựa trên thông tin sau:
 
@@ -111,7 +111,6 @@ Bạn là chuyên gia huấn luyện Yoga và Thiền định chuyên nghiệp. 
 
 **LƯU Ý QUAN TRỌNG:**
 - "type" CHỈ được là: "yoga", "meditation", hoặc "breathing"
-- MỖI bài tập PHẢI có TỐI THIỂU 5 bước, TỐI ĐA 8 bước trong "instructions"
 - MỖI bước phải dài 15-25 từ, mô tả CỰC KỲ CHI TIẾT
 - "details" của mỗi ngày phải dài 20-30 từ
 - "benefits" phải cụ thể và thuyết phục
@@ -146,7 +145,7 @@ export async function generateTipsWithAI(
     bmiCategory: string
 ): Promise<string[]> {
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-001' });
 
         const prompt = `
 Bạn là chuyên gia sức khỏe và thể hình. Hãy đưa ra 5 lời khuyên thiết thực cho người dùng với thông tin:
@@ -186,6 +185,59 @@ Chỉ trả về JSON array, không thêm text khác.
         throw error;
     }
 }
+
+/**
+ * Analyze a yoga pose from an image
+ * @param base64Image Base64 encoded image string
+ * @param poseName Name of the pose being performed
+ */
+export const analyzePose = async (base64Image: string, poseName: string) => {
+    try {
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+        const prompt = `
+      You are an expert Yoga Instructor. Analyze this image of a person performing the "${poseName}".
+      
+      Provide a strict evaluation in the following JSON format:
+      {
+        "score": number, // 0-100 based on form accuracy
+        "feedback": "string", // General encouraging feedback (max 2 sentences)
+        "corrections": ["string", "string"], // List of specific corrections (e.g., "Straighten your back", "Lower your hips")
+        "confidence": "string" // "High", "Medium", "Low" (how clearly you can see the pose)
+      }
+
+      If the image does not show a person or is unclear, set score to 0 and explain in feedback.
+      Do not include markdown formatting like \`\`\`json. Just return the raw JSON object.
+    `;
+
+        const imagePart = {
+            inlineData: {
+                data: base64Image,
+                mimeType: "image/jpeg",
+            },
+        };
+
+        const result = await model.generateContent([prompt, imagePart]);
+        const response = await result.response;
+        const text = response.text();
+
+        try {
+            const jsonStr = text.replace(/```json\n?|\n?```/g, '').trim();
+            return JSON.parse(jsonStr);
+        } catch (e) {
+            console.error("Error parsing pose analysis:", e);
+            return {
+                score: 0,
+                feedback: "Could not analyze the image. Please try again with a clearer photo.",
+                corrections: [],
+                confidence: "Low"
+            };
+        }
+    } catch (error) {
+        console.error("Error analyzing pose:", error);
+        throw error;
+    }
+};
 
 // Helper functions to convert enum values to Vietnamese text
 function getGoalText(goal?: string): string {

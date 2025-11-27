@@ -100,7 +100,7 @@ const FavoritesScreen = () => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           // Giả định WorkoutListItem đã được thiết kế cho dark mode
-          <WorkoutListItem workout={item} />
+          <WorkoutListItem workout={item} isDark={true} />
         )}
         ListHeaderComponent={ListHeader} // Thêm tiêu đề vào đầu danh sách
         contentContainerStyle={styles.listContent} // Thêm padding cho nội dung
