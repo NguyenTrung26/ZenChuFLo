@@ -83,12 +83,18 @@ export async function generateRecommendations(
                 recommendedDuration
             );
 
-            // Use AI-generated plan
+            // Use AI-generated plan - map exercises to workout types
+            const mappedWeeklyPlan = aiPlan.weeklyPlan.map(day => ({
+                day: day.day,
+                workouts: day.exercises.map(ex => ex.type), // Map exercises to their types
+                focus: day.focus,
+            }));
+
             return {
                 recommendedLevel,
                 recommendedDuration,
                 recommendedTypes,
-                weeklyPlan: aiPlan.weeklyPlan,
+                weeklyPlan: mappedWeeklyPlan,
                 bmi: Math.round(bmi * 10) / 10,
                 bmiCategory,
                 tips: aiPlan.tips,

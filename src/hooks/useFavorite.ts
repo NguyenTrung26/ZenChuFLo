@@ -11,7 +11,15 @@ import type { Workout } from "../types";
 export const useFavorite = (workout: Workout) => {
     const [isFavorited, setIsFavorited] = useState(false);
     const [loading, setLoading] = useState(true);
-    const user = auth.currentUser;
+    const [user, setUser] = useState(auth.currentUser);
+
+    // Listen to auth state changes
+    useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+            setUser(currentUser);
+        });
+        return () => unsubscribe();
+    }, []);
 
     const checkStatus = useCallback(async () => {
         if (!user) {
@@ -42,7 +50,7 @@ export const useFavorite = (workout: Workout) => {
                 setIsFavorited(false);
             } else {
                 await addWorkoutIfNotExists(workout);
-                await addFavorite(user.uid, workout.id);
+                await addFavorite(user.uid, workout);
                 setIsFavorited(true);
             }
         } catch (error) {
